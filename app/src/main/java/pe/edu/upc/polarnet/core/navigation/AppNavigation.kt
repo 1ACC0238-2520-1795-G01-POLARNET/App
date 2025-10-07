@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import pe.edu.upc.polarnet.core.root.Main
+import pe.edu.upc.polarnet.core.root.MainProveedor
 import pe.edu.upc.polarnet.core.ui.theme.PolarNetTheme
 import pe.edu.upc.polarnet.features.auth.presentation.di.PresentationModule.getLoginViewModel
 import pe.edu.upc.polarnet.features.auth.presentation.login.Login
@@ -20,21 +21,32 @@ fun AppNavigation() {
     val navController = rememberNavController()
     val loginViewModel = getLoginViewModel()
 
-
     NavHost(navController, startDestination = Route.Login.route) {
         composable(Route.Login.route) {
-            Login(loginViewModel) {
-                navController.navigate(Route.Main.route)
-            }
-
-
+            Login(
+                viewModel = loginViewModel,
+                onLoginCliente = {
+                    navController.navigate(Route.MainCliente.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                },
+                onLoginProveedor = {
+                    navController.navigate(Route.MainProveedor.route) {
+                        popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                }
+            )
         }
 
-
-        composable(Route.Main.route) {
+        composable(Route.MainCliente.route) {
             Main { productId ->
                 navController.navigate("${Route.ProductDetail.route}/$productId")
+            }
+        }
 
+        composable(Route.MainProveedor.route) {
+            MainProveedor { productId ->
+                navController.navigate("${Route.ProductDetail.route}/$productId")
             }
         }
 
@@ -45,22 +57,15 @@ fun AppNavigation() {
             })
         ) { navBackStackEntry ->
             navBackStackEntry.arguments?.let { arguments ->
-
                 val productId = arguments.getInt(Route.ProductDetail.argument)
                 val productDetailViewModel: ProductDetailViewModel = hiltViewModel()
 
                 productDetailViewModel.getProductById(productId)
                 ProductDetail(productDetailViewModel)
-
-
             }
-
         }
-
-
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
