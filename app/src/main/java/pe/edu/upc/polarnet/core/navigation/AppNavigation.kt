@@ -40,11 +40,15 @@ fun AppNavigation() {
         }
 
         // Main Cliente
+        // Main Cliente
         composable(Route.MainCliente.route) {
-            Main { equipmentId: Long ->
-                navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
-            }
+            Main(
+                onTapEquipmentCard = { equipmentId: Long ->
+                    navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
+                }
+            )
         }
+
 
         // Main Proveedor
         composable(Route.MainProveedor.route) {
