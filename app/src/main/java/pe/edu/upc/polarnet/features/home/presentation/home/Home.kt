@@ -202,7 +202,7 @@ fun Home(viewModel: HomeViewModel = hiltViewModel(), onTapEquipmentCard: (Long) 
 
         ) {
             Text(
-                stringResource(R.string.label_products),
+                stringResource(R.string.label_equipments),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.weight(1f)

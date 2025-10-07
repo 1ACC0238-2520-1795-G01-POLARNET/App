@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
@@ -24,10 +24,10 @@ import pe.edu.upc.polarnet.features.home.presentation.home.Home
 fun Main(onTapEquipmentCard: (Long) -> Unit)  {
 
     val navigationItems = listOf(
-        NavigationItem(Icons.Default.Home, "Home"),
-        NavigationItem(Icons.Default.Favorite, "Favorite"),
-        NavigationItem(Icons.Default.ShoppingCart, "Cart"),
-        NavigationItem(Icons.Default.Person, "Profile")
+        NavigationItem(Icons.Default.Home, "Inicio"),
+        NavigationItem(Icons.Default.Build, "Equipos"),
+        NavigationItem(Icons.Default.Settings, "Servicios"),
+        NavigationItem(Icons.Default.Person, "Perfil")
     )
 
     val selectedIndex = remember {
