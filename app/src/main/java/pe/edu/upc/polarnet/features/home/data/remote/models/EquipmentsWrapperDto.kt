@@ -1,8 +1,8 @@
 package pe.edu.upc.polarnet.features.home.data.remote.models
 
-data class ProductsWrapperDto(
+data class EquipmentsWrapperDto(
     val limit: Int,
-    val products: List<ProductDto>,
+    val equipments: List<EquipmentDto>,
     val skip: Int,
     val total: Int
 )

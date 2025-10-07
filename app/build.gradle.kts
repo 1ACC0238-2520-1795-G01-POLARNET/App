@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt) // Hilt plugin
     alias(libs.plugins.ksp) // KSP plugin
+
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 android {
@@ -59,6 +61,24 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // --- Supabase ---
+    implementation(platform("io.github.jan-tennert.supabase:bom:3.2.4"))
+    implementation("io.github.jan-tennert.supabase:postgrest-kt")
+    implementation("io.github.jan-tennert.supabase:auth-kt")
+    implementation("io.github.jan-tennert.supabase:realtime-kt")
+
+    // --- Ktor engine (para Android) ---
+    implementation("io.ktor:ktor-client-cio:3.0.0-rc-1")
+
+    // --- Serialización ---
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
+    // --- Jetpack Compose ---
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.compose.ui:ui:1.5.3")
+    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.ui:ui-tooling-preview:1.5.3")
+
     // Material icons extended
     implementation(libs.androidx.material.icons.extended)
 
@@ -87,4 +107,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 }

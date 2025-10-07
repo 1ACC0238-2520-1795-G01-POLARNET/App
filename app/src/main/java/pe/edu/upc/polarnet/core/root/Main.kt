@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import pe.edu.upc.polarnet.features.home.presentation.home.Home
 
 @Composable
-fun Main(onTapProductCard: (Int) -> Unit) {
+fun Main(onTapEquipmentCard: (Long) -> Unit)  {
 
     val navigationItems = listOf(
         NavigationItem(Icons.Default.Home, "Home"),
@@ -64,7 +64,7 @@ fun Main(onTapProductCard: (Int) -> Unit) {
                 .padding(paddingValues)
         ) {
             Home { id ->
-                onTapProductCard(id)
+                onTapEquipmentCard(id)
             }
         }
     }

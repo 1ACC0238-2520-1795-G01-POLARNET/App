@@ -13,35 +13,36 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import pe.edu.upc.polarnet.shared.models.Product
+import pe.edu.upc.polarnet.shared.models.Equipment
 
 @Composable
-fun ProductCard(product: Product, onClick: () -> Unit) {
-    Card(modifier = Modifier.padding(8.dp),
-        onClick = {
-            onClick()
-        }
-        ) {
-        Column (modifier = Modifier.padding(8.dp)){
-            
+fun EquipmentCard(equipment: Equipment, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.padding(8.dp),
+        onClick = { onClick() }
+    ) {
+        Column(modifier = Modifier.padding(8.dp)) {
+
             AsyncImage(
-                product.image,
-                contentDescription = null,
-                modifier = Modifier.height(128.dp).fillMaxWidth(),
+                model = equipment.thumbnail,
+                contentDescription = equipment.name,
+                modifier = Modifier
+                    .height(128.dp)
+                    .fillMaxWidth(),
                 contentScale = ContentScale.FillHeight
             )
+
             Text(
-                product.name,
+                equipment.name,
                 style = MaterialTheme.typography.labelSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+
             Text(
-                "$ ${product.price}",
+                "$ ${equipment.purchasePrice}",
                 style = MaterialTheme.typography.labelMedium
             )
         }
     }
-
 }
-

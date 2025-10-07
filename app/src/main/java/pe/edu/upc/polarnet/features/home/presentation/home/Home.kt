@@ -52,15 +52,15 @@ import pe.edu.upc.polarnet.core.ui.components.RoundedIcon
 import pe.edu.upc.polarnet.core.ui.components.WidthSpacer
 
 @Composable
-fun Home(viewModel: HomeViewModel = hiltViewModel(), onTapProductCard: (Int) -> Unit) {
+fun Home(viewModel: HomeViewModel = hiltViewModel(), onTapEquipmentCard: (Long) -> Unit) {
 
-    val categories = listOf("All", "Men", "Women", "Boys", "Girls")
+    val categories = listOf("All", "Freezers", "Refrigerators", "Showcases", "CSR")
 
     val selectedCategory = remember {
         mutableStateOf("All")
     }
 
-    val products by viewModel.products.collectAsState()
+    val equipments by viewModel.equipments.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -211,12 +211,13 @@ fun Home(viewModel: HomeViewModel = hiltViewModel(), onTapProductCard: (Int) -> 
         }
 
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-            items(products) { product ->
-                ProductCard(product){
-                    Log.d("Home", product.id.toString())
-                    onTapProductCard(product.id)
+            items(equipments) { equipment ->
+                EquipmentCard(equipment) {
+                    Log.d("Home", equipment.id.toString())
+                    onTapEquipmentCard(equipment.id)
                 }
             }
         }
+
     }
 }

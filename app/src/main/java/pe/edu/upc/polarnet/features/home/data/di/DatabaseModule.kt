@@ -6,27 +6,26 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import pe.edu.upc.polarnet.features.home.data.local.dao.ProductDao
+import jakarta.inject.Singleton
+import pe.edu.upc.polarnet.features.home.data.local.dao.EquipmentDao
 import pe.edu.upc.polarnet.features.home.data.local.database.AppDatabase
-import javax.inject.Singleton
-
 
 @Module
 @InstallIn(SingletonComponent::class)
-object LocalModule {
+object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAppDatabase(application: Application): AppDatabase {
+    fun provideDatabase(app: Application): AppDatabase {
         return Room.databaseBuilder(
-            application,
-            AppDatabase::class.java, "database-name"
+            app,
+            AppDatabase::class.java,
+            "polarnet_db"
         ).build()
     }
 
     @Provides
-    @Singleton
-    fun provideProductDao(appDatabase: AppDatabase): ProductDao {
-        return appDatabase.productDao()
+    fun provideEquipmentDao(db: AppDatabase): EquipmentDao {
+        return db.equipmentDao()
     }
 }

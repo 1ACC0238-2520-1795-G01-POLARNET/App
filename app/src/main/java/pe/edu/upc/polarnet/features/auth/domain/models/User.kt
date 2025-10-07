@@ -1,10 +1,13 @@
 package pe.edu.upc.polarnet.features.auth.domain.models
 
 data class User(
-    val id: Int,
-    val username: String,
-    val name: String,
-    val image: String,
+    val id: Long,
+    val fullName: String,
+    val email: String,
+    val password: String,
     val role: UserRole,
-    val accessToken: String
+    val companyName: String?,
+    val phone: String?,
+    val location: String?,
+    val createdAt: String? // o LocalDateTime si quieres parsear
 )

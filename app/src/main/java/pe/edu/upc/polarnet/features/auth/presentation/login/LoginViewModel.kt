@@ -9,8 +9,8 @@ import pe.edu.upc.polarnet.features.auth.domain.models.User
 import pe.edu.upc.polarnet.features.auth.domain.repositories.AuthRepository
 
 class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
-    private val _username = MutableStateFlow("")
-    val username: StateFlow<String> = _username
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email
 
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
@@ -24,8 +24,8 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
-    fun updateUsername(value: String) {
-        _username.value = value
+    fun updateEmail(value: String) {
+        _email.value = value
         _errorMessage.value = null
     }
 
@@ -35,7 +35,7 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
     }
 
     fun login() {
-        if (username.value.isBlank() || password.value.isBlank()) {
+        if (email.value.isBlank() || password.value.isBlank()) {
             _errorMessage.value = "Por favor, completa todos los campos"
             return
         }
@@ -45,14 +45,19 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
             _errorMessage.value = null
 
             try {
-                val result = repository.login(username.value, password.value)
+                println("🔐 Iniciando login con: ${email.value}")
+                val result = repository.login(email.value, password.value)
+
                 if (result != null) {
+                    println("✅ Usuario autenticado: ${result.fullName}")
                     _user.value = result
-                    // Aquí podrías guardar el token usando TokenManager
                 } else {
-                    _errorMessage.value = "Usuario o contraseña incorrectos"
+                    println("❌ Login falló - credenciales incorrectas")
+                    _errorMessage.value = "Correo o contraseña incorrectos"
                 }
             } catch (e: Exception) {
+                println("💥 Excepción en login: ${e.message}")
+                e.printStackTrace()
                 _errorMessage.value = "Error de conexión: ${e.message}"
             } finally {
                 _isLoading.value = false

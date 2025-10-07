@@ -37,7 +37,7 @@ fun Login(
     onLoginCliente: () -> Unit,
     onLoginProveedor: () -> Unit
 ) {
-    val username = viewModel.username.collectAsState()
+    val email = viewModel.email.collectAsState()
     val password = viewModel.password.collectAsState()
     val user = viewModel.user.collectAsState()
     val isLoading = viewModel.isLoading.collectAsState()
@@ -49,8 +49,8 @@ fun Login(
     LaunchedEffect(user.value) {
         user.value?.let { loggedUser ->
             when (loggedUser.role) {
-                UserRole.CLIENTE -> onLoginCliente()
-                UserRole.PROVEEDOR -> onLoginProveedor()
+                UserRole.CLIENT -> onLoginCliente()
+                UserRole.PROVIDER -> onLoginProveedor()
             }
         }
     }
@@ -61,9 +61,9 @@ fun Login(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
-            value = username.value,
+            value = email.value,
             onValueChange = {
-                viewModel.updateUsername(it)
+                viewModel.updateEmail(it)
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -72,7 +72,7 @@ fun Login(
                 Icon(Icons.Default.Person, contentDescription = null)
             },
             placeholder = {
-                Text(text = "Username")
+                Text(text = "Correo electrónico")
             },
             enabled = !isLoading.value
         )
@@ -89,7 +89,7 @@ fun Login(
                 Icon(Icons.Default.Lock, contentDescription = null)
             },
             placeholder = {
-                Text("Password")
+                Text("Contraseña")
             },
             visualTransformation = if (isVisible.value) {
                 VisualTransformation.None
@@ -98,16 +98,10 @@ fun Login(
             },
             trailingIcon = {
                 IconButton(
-                    onClick = {
-                        isVisible.value = !isVisible.value
-                    }
+                    onClick = { isVisible.value = !isVisible.value }
                 ) {
                     Icon(
-                        if (isVisible.value) {
-                            Icons.Default.Visibility
-                        } else {
-                            Icons.Default.VisibilityOff
-                        },
+                        if (isVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = null
                     )
                 }
@@ -116,13 +110,11 @@ fun Login(
         )
 
         Button(
-            onClick = {
-                viewModel.login()
-            },
+            onClick = { viewModel.login() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            enabled = !isLoading.value && username.value.isNotEmpty() && password.value.isNotEmpty()
+            enabled = !isLoading.value && email.value.isNotEmpty() && password.value.isNotEmpty()
         ) {
             if (isLoading.value) {
                 CircularProgressIndicator()

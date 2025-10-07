@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import pe.edu.upc.polarnet.features.home.presentation.home.Home
 
 @Composable
-fun MainProveedor(onTapProductCard: (Int) -> Unit) {
+fun MainProveedor(onTapEquipmentCard: (Long) -> Unit) {
 
     val navigationItems = listOf(
         NavigationItem(Icons.Default.Home, "Inicio"),
@@ -63,7 +63,7 @@ fun MainProveedor(onTapProductCard: (Int) -> Unit) {
                 .padding(paddingValues)
         ) {
             when (selectedIndex.intValue) {
-                0 -> Home { id -> onTapProductCard(id) }
+                0 -> Home { id -> onTapEquipmentCard(id) }
                 1 -> Text("Inventario de Productos", modifier = Modifier.padding(paddingValues))
                 2 -> Text("Agregar Producto", modifier = Modifier.padding(paddingValues))
                 3 -> Text("Perfil del Proveedor", modifier = Modifier.padding(paddingValues))

@@ -1,4 +1,4 @@
-package pe.edu.upc.polarnet.features.home.presentation.home
+package pe.edu.upc.polarnet.features.home.presentation.equipmentdetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,20 +11,16 @@ import pe.edu.upc.polarnet.shared.models.Equipment
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(
+class EquipmentDetailViewModel @Inject constructor(
     private val repository: EquipmentRepository
 ) : ViewModel() {
 
-    private val _equipments = MutableStateFlow<List<Equipment>>(emptyList())
-    val equipments: StateFlow<List<Equipment>> = _equipments
+    private val _equipment = MutableStateFlow<Equipment?>(null)
+    val equipment: StateFlow<Equipment?> = _equipment
 
-    fun getAllEquipments() {
+    fun getEquipmentById(id: Long) {
         viewModelScope.launch {
-            _equipments.value = repository.getAllEquipments()
+            _equipment.value = repository.getEquipmentById(id)
         }
-    }
-
-    init {
-        getAllEquipments()
     }
 }

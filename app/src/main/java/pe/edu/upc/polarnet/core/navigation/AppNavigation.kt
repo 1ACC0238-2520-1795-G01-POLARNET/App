@@ -13,8 +13,8 @@ import pe.edu.upc.polarnet.core.root.MainProveedor
 import pe.edu.upc.polarnet.core.ui.theme.PolarNetTheme
 import pe.edu.upc.polarnet.features.auth.presentation.di.PresentationModule.getLoginViewModel
 import pe.edu.upc.polarnet.features.auth.presentation.login.Login
-import pe.edu.upc.polarnet.features.home.presentation.productdetail.ProductDetail
-import pe.edu.upc.polarnet.features.home.presentation.productdetail.ProductDetailViewModel
+import pe.edu.upc.polarnet.features.home.presentation.equipmentdetail.EquipmentDetail
+import pe.edu.upc.polarnet.features.home.presentation.equipmentdetail.EquipmentDetailViewModel
 
 @Composable
 fun AppNavigation() {
@@ -22,6 +22,7 @@ fun AppNavigation() {
     val loginViewModel = getLoginViewModel()
 
     NavHost(navController, startDestination = Route.Login.route) {
+        // Login
         composable(Route.Login.route) {
             Login(
                 viewModel = loginViewModel,
@@ -38,30 +39,33 @@ fun AppNavigation() {
             )
         }
 
+        // Main Cliente
         composable(Route.MainCliente.route) {
-            Main { productId ->
-                navController.navigate("${Route.ProductDetail.route}/$productId")
+            Main { equipmentId: Long ->
+                navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
             }
         }
 
+        // Main Proveedor
         composable(Route.MainProveedor.route) {
-            MainProveedor { productId ->
-                navController.navigate("${Route.ProductDetail.route}/$productId")
+            MainProveedor { equipmentId: Long ->
+                navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
             }
         }
 
+        // Equipment Detail
         composable(
-            route = Route.ProductDetail.routeWithArgument,
-            arguments = listOf(navArgument(Route.ProductDetail.argument) {
-                type = NavType.IntType
+            route = Route.EquipmentDetail.routeWithArgument,
+            arguments = listOf(navArgument(Route.EquipmentDetail.argument) {
+                type = NavType.LongType // <-- Cambiado a Long
             })
         ) { navBackStackEntry ->
             navBackStackEntry.arguments?.let { arguments ->
-                val productId = arguments.getInt(Route.ProductDetail.argument)
-                val productDetailViewModel: ProductDetailViewModel = hiltViewModel()
+                val equipmentId = arguments.getLong(Route.EquipmentDetail.argument) // <-- getLong
+                val equipmentDetailViewModel: EquipmentDetailViewModel = hiltViewModel()
 
-                productDetailViewModel.getProductById(productId)
-                ProductDetail(productDetailViewModel)
+                equipmentDetailViewModel.getEquipmentById(equipmentId) // <-- recibe Long
+                EquipmentDetail(equipmentDetailViewModel)
             }
         }
     }
