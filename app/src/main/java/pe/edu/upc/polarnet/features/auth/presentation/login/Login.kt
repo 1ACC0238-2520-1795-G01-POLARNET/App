@@ -25,11 +25,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dagger.hilt.android.lifecycle.HiltViewModel
 import pe.edu.upc.polarnet.core.ui.theme.PolarNetTheme
 import pe.edu.upc.polarnet.features.auth.domain.models.UserRole
-import pe.edu.upc.polarnet.features.auth.presentation.di.PresentationModule.getLoginViewModel
 
 @Composable
 fun Login(
@@ -39,13 +38,13 @@ fun Login(
 ) {
     val email = viewModel.email.collectAsState()
     val password = viewModel.password.collectAsState()
-    val user = viewModel.user.collectAsState()
+    val user = viewModel.loggedUser.collectAsState()
     val isLoading = viewModel.isLoading.collectAsState()
     val errorMessage = viewModel.errorMessage.collectAsState()
 
     val isVisible = remember { mutableStateOf(false) }
 
-    // Navegar según el rol cuando el login sea exitoso
+    // 🚀 Redirige al tipo de usuario autenticado
     LaunchedEffect(user.value) {
         user.value?.let { loggedUser ->
             when (loggedUser.role) {
@@ -62,44 +61,29 @@ fun Login(
     ) {
         OutlinedTextField(
             value = email.value,
-            onValueChange = {
-                viewModel.updateEmail(it)
-            },
+            onValueChange = viewModel::updateEmail,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            leadingIcon = {
-                Icon(Icons.Default.Person, contentDescription = null)
-            },
-            placeholder = {
-                Text(text = "Correo electrónico")
-            },
+            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+            placeholder = { Text("Correo electrónico") },
             enabled = !isLoading.value
         )
 
         OutlinedTextField(
             value = password.value,
-            onValueChange = {
-                viewModel.updatePassword(it)
-            },
+            onValueChange = viewModel::updatePassword,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-            leadingIcon = {
-                Icon(Icons.Default.Lock, contentDescription = null)
-            },
-            placeholder = {
-                Text("Contraseña")
-            },
-            visualTransformation = if (isVisible.value) {
+            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+            placeholder = { Text("Contraseña") },
+            visualTransformation = if (isVisible.value)
                 VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
+            else
+                PasswordVisualTransformation(),
             trailingIcon = {
-                IconButton(
-                    onClick = { isVisible.value = !isVisible.value }
-                ) {
+                IconButton(onClick = { isVisible.value = !isVisible.value }) {
                     Icon(
                         if (isVisible.value) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                         contentDescription = null
@@ -116,11 +100,8 @@ fun Login(
                 .padding(8.dp),
             enabled = !isLoading.value && email.value.isNotEmpty() && password.value.isNotEmpty()
         ) {
-            if (isLoading.value) {
-                CircularProgressIndicator()
-            } else {
-                Text(text = "Login")
-            }
+            if (isLoading.value) CircularProgressIndicator()
+            else Text("Login")
         }
 
         errorMessage.value?.let { error ->
@@ -130,14 +111,5 @@ fun Login(
                 modifier = Modifier.padding(8.dp)
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun LoginPreview() {
-    val viewModel = getLoginViewModel()
-    PolarNetTheme {
-        Login(viewModel, {}, {})
     }
 }

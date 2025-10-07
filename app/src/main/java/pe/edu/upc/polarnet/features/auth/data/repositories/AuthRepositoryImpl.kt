@@ -9,60 +9,33 @@ import pe.edu.upc.polarnet.features.auth.data.models.UserDetailDto
 import pe.edu.upc.polarnet.features.auth.domain.models.User
 import pe.edu.upc.polarnet.features.auth.domain.models.UserRole
 import pe.edu.upc.polarnet.features.auth.domain.repositories.AuthRepository
+import javax.inject.Inject // 👈 AÑADE ESTO
 
-class AuthRepositoryImpl : AuthRepository {
+class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
+) : AuthRepository {
 
     private val supabase = SupabaseClient.client
 
     override suspend fun login(email: String, password: String): User? =
         withContext(Dispatchers.IO) {
             try {
-                // Log para debug
                 println("🔍 Intentando login con email: $email")
                 println("🔗 URL Supabase: ${supabase.supabaseUrl}")
 
-                // Primero intenta obtener TODOS los usuarios para debug
-                val allUsers = try {
-                    supabase
-                        .from("users")
-                        .select(columns = Columns.ALL)
-                        .decodeList<UserDetailDto>()
-                } catch (e: Exception) {
-                    println("⚠️ Error al obtener todos los usuarios: ${e.message}")
-                    emptyList()
-                }
-
-                println("📊 Total usuarios en BD: ${allUsers.size}")
-                allUsers.forEach { println("   - ${it.email}") }
-
-                // Buscar usuario por email
                 val users = supabase
                     .from("users")
                     .select(columns = Columns.ALL) {
-                        filter {
-                            eq("email", email)
-                        }
+                        filter { eq("email", email) }
                     }
                     .decodeList<UserDetailDto>()
 
-                println("📊 Usuarios encontrados con filtro: ${users.size}")
+                if (users.isEmpty()) return@withContext null
 
-                if (users.isEmpty()) {
-                    println("❌ No se encontró usuario con email: $email")
-                    return@withContext null
-                }
-
-                val userDto = users.firstOrNull()
-
-                // Verificar contraseña
-                if (userDto?.password != password) {
-                    println("❌ Contraseña incorrecta")
-                    return@withContext null
-                }
+                val userDto = users.first()
+                if (userDto.password != password) return@withContext null
 
                 println("✅ Login exitoso para: ${userDto.fullName}")
 
-                // Retornar usuario
                 User(
                     id = userDto.id,
                     fullName = userDto.fullName,

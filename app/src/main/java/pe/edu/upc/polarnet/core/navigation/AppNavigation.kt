@@ -1,6 +1,7 @@
 package pe.edu.upc.polarnet.core.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
@@ -11,18 +12,23 @@ import androidx.navigation.navArgument
 import pe.edu.upc.polarnet.core.root.Main
 import pe.edu.upc.polarnet.core.root.MainProveedor
 import pe.edu.upc.polarnet.core.ui.theme.PolarNetTheme
-import pe.edu.upc.polarnet.features.auth.presentation.di.PresentationModule.getLoginViewModel
 import pe.edu.upc.polarnet.features.auth.presentation.login.Login
+import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
 import pe.edu.upc.polarnet.features.client.home.presentation.equipmentdetail.EquipmentDetail
 import pe.edu.upc.polarnet.features.client.home.presentation.equipmentdetail.EquipmentDetailViewModel
+import pe.edu.upc.polarnet.features.client.services.presentation.serviceRequest.ServiceRequestScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val loginViewModel = getLoginViewModel()
+
+    val loginViewModel: LoginViewModel = hiltViewModel()
+
+    val loggedUser = loginViewModel.loggedUser.collectAsState().value
 
     NavHost(navController, startDestination = Route.Login.route) {
-        // Login
+
+        // 🔹 LOGIN SCREEN
         composable(Route.Login.route) {
             Login(
                 viewModel = loginViewModel,
@@ -39,38 +45,46 @@ fun AppNavigation() {
             )
         }
 
-        // Main Cliente
-        // Main Cliente
+        // 🔹 MAIN CLIENTE
         composable(Route.MainCliente.route) {
+            // 👇 Obtenemos el ID del usuario autenticado
+            val clientId = loggedUser?.id ?: 0L
+
             Main(
+                clientId = clientId,
                 onTapEquipmentCard = { equipmentId: Long ->
                     navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
                 }
             )
         }
 
-
-        // Main Proveedor
+        // 🔹 MAIN PROVEEDOR
         composable(Route.MainProveedor.route) {
             MainProveedor { equipmentId: Long ->
                 navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
             }
         }
 
-        // Equipment Detail
+        // 🔹 DETALLE DE EQUIPO
         composable(
             route = Route.EquipmentDetail.routeWithArgument,
-            arguments = listOf(navArgument(Route.EquipmentDetail.argument) {
-                type = NavType.LongType // <-- Cambiado a Long
-            })
+            arguments = listOf(
+                navArgument(Route.EquipmentDetail.argument) { type = NavType.LongType }
+            )
         ) { navBackStackEntry ->
-            navBackStackEntry.arguments?.let { arguments ->
-                val equipmentId = arguments.getLong(Route.EquipmentDetail.argument) // <-- getLong
-                val equipmentDetailViewModel: EquipmentDetailViewModel = hiltViewModel()
+            val equipmentId = navBackStackEntry.arguments?.getLong(Route.EquipmentDetail.argument)
+            val equipmentDetailViewModel: EquipmentDetailViewModel = hiltViewModel()
 
-                equipmentDetailViewModel.getEquipmentById(equipmentId) // <-- recibe Long
+            equipmentId?.let {
+                equipmentDetailViewModel.getEquipmentById(it)
                 EquipmentDetail(equipmentDetailViewModel)
             }
+        }
+
+        // 🔹 SERVICIOS DEL CLIENTE
+        composable(Route.ServiceRequests.route) {
+            val clientId = loggedUser?.id ?: 0L
+            ServiceRequestScreen(clientId = clientId)
         }
     }
 }

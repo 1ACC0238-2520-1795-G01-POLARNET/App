@@ -6,11 +6,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import jakarta.inject.Singleton
+import javax.inject.Singleton
 import pe.edu.upc.polarnet.core.database.AppDatabase
 import pe.edu.upc.polarnet.features.client.equipments.data.local.dao.ClientEquipmentDao
 import pe.edu.upc.polarnet.features.client.home.data.local.dao.EquipmentDao
-
+import pe.edu.upc.polarnet.features.client.services.data.local.dao.ServiceRequestDao
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -23,7 +23,9 @@ object DatabaseModule {
             app,
             AppDatabase::class.java,
             "polarnet_db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
@@ -31,4 +33,7 @@ object DatabaseModule {
 
     @Provides
     fun provideClientEquipmentDao(db: AppDatabase): ClientEquipmentDao = db.clientEquipmentDao()
+
+    @Provides
+    fun provideServiceRequestDao(db: AppDatabase): ServiceRequestDao = db.serviceRequestDao()
 }

@@ -18,15 +18,17 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.hilt.navigation.compose.hiltViewModel
 import pe.edu.upc.polarnet.features.client.home.presentation.home.Home
 import pe.edu.upc.polarnet.features.client.equipments.presentation.ClientEquipmentsScreen
+import pe.edu.upc.polarnet.features.client.services.presentation.ServiceRequestViewModel
+import pe.edu.upc.polarnet.features.client.services.presentation.serviceRequest.ServiceRequestScreen
 
 @Composable
 fun Main(
-    onTapEquipmentCard: (Long) -> Unit,
-    clientId: Long = 2L // ⚠️ de prueba, reemplázalo con el ID real del usuario logueado
+    clientId: Long,
+    onTapEquipmentCard: (Long) -> Unit
 ) {
-
     val navigationItems = listOf(
         NavigationItem(Icons.Default.Home, "Inicio"),
         NavigationItem(Icons.Default.Build, "Mis Equipos"),
@@ -50,7 +52,6 @@ fun Main(
             }
         }
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -59,13 +60,20 @@ fun Main(
             when (selectedIndex.intValue) {
                 0 -> Home { id -> onTapEquipmentCard(id) }
 
-                // 🔹 Nueva pantalla: Mis Equipos del cliente
                 1 -> ClientEquipmentsScreen(
                     clientId = clientId,
                     onTapEquipmentCard = onTapEquipmentCard
                 )
 
-                2 -> Text("Servicios (Próximamente...)")
+                // ✅ Nueva pestaña: Servicios del cliente
+                2 -> {
+                    val serviceViewModel: ServiceRequestViewModel = hiltViewModel()
+                    ServiceRequestScreen(
+                        clientId = clientId,
+                        viewModel = serviceViewModel
+                    )
+                }
+
                 3 -> Text("Perfil del usuario (Próximamente...)")
             }
         }
