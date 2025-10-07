@@ -13,8 +13,8 @@ import pe.edu.upc.polarnet.core.root.MainProveedor
 import pe.edu.upc.polarnet.core.ui.theme.PolarNetTheme
 import pe.edu.upc.polarnet.features.auth.presentation.di.PresentationModule.getLoginViewModel
 import pe.edu.upc.polarnet.features.auth.presentation.login.Login
-import pe.edu.upc.polarnet.features.home.presentation.equipmentdetail.EquipmentDetail
-import pe.edu.upc.polarnet.features.home.presentation.equipmentdetail.EquipmentDetailViewModel
+import pe.edu.upc.polarnet.features.client.home.presentation.equipmentdetail.EquipmentDetail
+import pe.edu.upc.polarnet.features.client.home.presentation.equipmentdetail.EquipmentDetailViewModel
 
 @Composable
 fun AppNavigation() {

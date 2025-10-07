@@ -18,7 +18,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import pe.edu.upc.polarnet.features.home.presentation.home.Home
+import pe.edu.upc.polarnet.features.client.home.presentation.home.Home
 
 @Composable
 fun Main(onTapEquipmentCard: (Long) -> Unit)  {

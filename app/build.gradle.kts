@@ -79,6 +79,8 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.2.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.3")
 
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
     // Material icons extended
     implementation(libs.androidx.material.icons.extended)
 
