@@ -19,15 +19,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
-import pe.edu.upc.polarnet.features.client.home.presentation.home.Home
+import pe.edu.upc.polarnet.core.profile.ProfileScreen
+import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
 import pe.edu.upc.polarnet.features.client.equipments.presentation.ClientEquipmentsScreen
+import pe.edu.upc.polarnet.features.client.home.presentation.home.Home
 import pe.edu.upc.polarnet.features.client.services.presentation.ServiceRequestViewModel
 import pe.edu.upc.polarnet.features.client.services.presentation.serviceRequest.ServiceRequestScreen
 
 @Composable
 fun Main(
     clientId: Long,
-    onTapEquipmentCard: (Long) -> Unit
+    onTapEquipmentCard: (Long) -> Unit,
+    loginViewModel: LoginViewModel
 ) {
     val navigationItems = listOf(
         NavigationItem(Icons.Default.Home, "Inicio"),
@@ -58,23 +61,22 @@ fun Main(
                 .padding(paddingValues)
         ) {
             when (selectedIndex.intValue) {
-                0 -> Home { id -> onTapEquipmentCard(id) }
+                0 -> Home(
+                    onTapEquipmentCard = onTapEquipmentCard,
+                    loginViewModel = loginViewModel
+                )
 
                 1 -> ClientEquipmentsScreen(
                     clientId = clientId,
                     onTapEquipmentCard = onTapEquipmentCard
                 )
 
-                // ✅ Nueva pestaña: Servicios del cliente
                 2 -> {
                     val serviceViewModel: ServiceRequestViewModel = hiltViewModel()
-                    ServiceRequestScreen(
-                        clientId = clientId,
-                        viewModel = serviceViewModel
-                    )
+                    ServiceRequestScreen(clientId = clientId, viewModel = serviceViewModel)
                 }
 
-                3 -> Text("Perfil del usuario (Próximamente...)")
+                3 -> ProfileScreen(loginViewModel = loginViewModel)
             }
         }
     }

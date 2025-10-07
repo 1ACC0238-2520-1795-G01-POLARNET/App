@@ -52,7 +52,8 @@ fun AppNavigation() {
 
             Main(
                 clientId = clientId,
-                onTapEquipmentCard = { equipmentId: Long ->
+                loginViewModel = loginViewModel, // ✅ bien
+                onTapEquipmentCard = { equipmentId ->
                     navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
                 }
             )
@@ -60,10 +61,17 @@ fun AppNavigation() {
 
         // 🔹 MAIN PROVEEDOR
         composable(Route.MainProveedor.route) {
-            MainProveedor { equipmentId: Long ->
-                navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
-            }
+            val providerId = loggedUser?.id ?: 0L
+
+            MainProveedor(
+                providerId = providerId,
+                loginViewModel = loginViewModel, // ✅ Se pasa también al proveedor
+                onTapEquipmentCard = { equipmentId: Long ->
+                    navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
+                }
+            )
         }
+
 
         // 🔹 DETALLE DE EQUIPO
         composable(

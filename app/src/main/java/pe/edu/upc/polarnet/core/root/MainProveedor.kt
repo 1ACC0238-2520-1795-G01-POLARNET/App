@@ -14,15 +14,24 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import pe.edu.upc.polarnet.core.profile.ProfileScreen
+import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
 import pe.edu.upc.polarnet.features.client.home.presentation.home.Home
 
-
 @Composable
-fun MainProveedor(onTapEquipmentCard: (Long) -> Unit) {
+fun MainProveedor(
+    providerId: Long,
+    loginViewModel: LoginViewModel,
+    onTapEquipmentCard: (Long) -> Unit
+) {
+    // 👇 Recuperamos el usuario logueado
+    val loggedUser = loginViewModel.loggedUser.collectAsState().value
 
     val navigationItems = listOf(
         NavigationItem(Icons.Default.Home, "Inicio"),
@@ -31,9 +40,7 @@ fun MainProveedor(onTapEquipmentCard: (Long) -> Unit) {
         NavigationItem(Icons.Default.Person, "Perfil")
     )
 
-    val selectedIndex = remember {
-        mutableIntStateOf(0)
-    }
+    val selectedIndex = remember { mutableIntStateOf(0) }
 
     Scaffold(
         bottomBar = {
@@ -41,18 +48,9 @@ fun MainProveedor(onTapEquipmentCard: (Long) -> Unit) {
                 navigationItems.forEachIndexed { index, item ->
                     NavigationBarItem(
                         selected = index == selectedIndex.intValue,
-                        onClick = {
-                            selectedIndex.intValue = index
-                        },
-                        icon = {
-                            Icon(
-                                item.icon,
-                                contentDescription = null
-                            )
-                        },
-                        label = {
-                            Text(item.label)
-                        }
+                        onClick = { selectedIndex.intValue = index },
+                        icon = { Icon(item.icon, contentDescription = null) },
+                        label = { Text(item.label) }
                     )
                 }
             }
@@ -64,10 +62,25 @@ fun MainProveedor(onTapEquipmentCard: (Long) -> Unit) {
                 .padding(paddingValues)
         ) {
             when (selectedIndex.intValue) {
-                0 -> Home { id -> onTapEquipmentCard(id) }
-                1 -> Text("Inventario de Productos", modifier = Modifier.padding(paddingValues))
-                2 -> Text("Agregar Producto", modifier = Modifier.padding(paddingValues))
-                3 -> Text("Perfil del Proveedor", modifier = Modifier.padding(paddingValues))
+
+                0 -> Home(
+                    onTapEquipmentCard = onTapEquipmentCard,
+                    loginViewModel = loginViewModel
+                )
+
+                1 -> Text(
+                    text = "Inventario del proveedor ${loggedUser?.fullName ?: "desconocido"} (ID: $providerId)",
+                    modifier = Modifier.padding(16.dp),
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                2 -> Text(
+                    text = "Agregar nuevo producto",
+                    modifier = Modifier.padding(16.dp),
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                3 -> ProfileScreen(loginViewModel = loginViewModel)
             }
         }
     }

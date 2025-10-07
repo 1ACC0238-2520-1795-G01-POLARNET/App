@@ -36,9 +36,9 @@ import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
 @Composable
 fun Home(
     viewModel: HomeViewModel = hiltViewModel(),
-    onTapEquipmentCard: (Long) -> Unit
+    onTapEquipmentCard: (Long) -> Unit,
+    loginViewModel: LoginViewModel // ✅ Recibido desde Main
 ) {
-    val loginViewModel: LoginViewModel = hiltViewModel()
     val loggedUser = loginViewModel.loggedUser.collectAsState().value
 
     val categories = listOf("All", "Freezers", "Refrigerators", "Showcases", "CSR")
