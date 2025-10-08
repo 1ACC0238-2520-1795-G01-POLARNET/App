@@ -33,7 +33,8 @@ class ServiceRequestRepositoryImpl @Inject constructor(
                         totalPrice = dto.totalPrice,
                         notes = dto.notes,
                         createdAt = dto.createdAt,
-                        equipment = null // puedes incluirlo luego si haces join
+                        equipment = null,
+                        client = null
                     )
                 } ?: emptyList()
 
@@ -68,7 +69,8 @@ class ServiceRequestRepositoryImpl @Inject constructor(
                         totalPrice = dto.totalPrice,
                         notes = dto.notes,
                         createdAt = dto.createdAt,
-                        equipment = null
+                        equipment = null,
+                        client = null
                     )
                 } ?: emptyList()
             }

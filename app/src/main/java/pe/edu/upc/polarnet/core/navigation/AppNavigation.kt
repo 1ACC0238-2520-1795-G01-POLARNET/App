@@ -47,12 +47,11 @@ fun AppNavigation() {
 
         // 🔹 MAIN CLIENTE
         composable(Route.MainCliente.route) {
-            // 👇 Obtenemos el ID del usuario autenticado
             val clientId = loggedUser?.id ?: 0L
 
             Main(
                 clientId = clientId,
-                loginViewModel = loginViewModel, // ✅ bien
+                loginViewModel = loginViewModel,
                 onTapEquipmentCard = { equipmentId ->
                     navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
                 }
@@ -65,13 +64,13 @@ fun AppNavigation() {
 
             MainProveedor(
                 providerId = providerId,
-                loginViewModel = loginViewModel, // ✅ Se pasa también al proveedor
-                onTapEquipmentCard = { equipmentId: Long ->
-                    navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
+                loginViewModel = loginViewModel,
+                onTapServiceRequest = { serviceRequestId -> // 👈 Cambio aquí
+                    // TODO: Navegar a detalle de solicitud cuando lo crees
+                    navController.navigate("${Route.ServiceRequestDetail.route}/$serviceRequestId")
                 }
             )
         }
-
 
         // 🔹 DETALLE DE EQUIPO
         composable(
@@ -93,6 +92,21 @@ fun AppNavigation() {
         composable(Route.ServiceRequests.route) {
             val clientId = loggedUser?.id ?: 0L
             ServiceRequestScreen(clientId = clientId)
+        }
+
+        // 🔹 DETALLE DE SOLICITUD DE SERVICIO (PROVEEDOR)
+        composable(
+            route = Route.ServiceRequestDetail.routeWithArgument,
+            arguments = listOf(
+                navArgument(Route.ServiceRequestDetail.argument) { type = NavType.LongType }
+            )
+        ) { navBackStackEntry ->
+            val serviceRequestId = navBackStackEntry.arguments?.getLong(Route.ServiceRequestDetail.argument)
+
+            serviceRequestId?.let {
+                // TODO: Crear ServiceRequestDetailScreen cuando lo necesites
+                // ServiceRequestDetailScreen(serviceRequestId = it)
+            }
         }
     }
 }

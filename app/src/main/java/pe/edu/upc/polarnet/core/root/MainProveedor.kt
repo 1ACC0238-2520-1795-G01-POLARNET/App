@@ -18,19 +18,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import pe.edu.upc.polarnet.core.profile.ProfileScreen
 import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
-import pe.edu.upc.polarnet.features.client.home.presentation.home.Home
+import pe.edu.upc.polarnet.features.provider.addequipment.presentation.AddEquipmentScreen
+import pe.edu.upc.polarnet.features.provider.home.presentation.ProviderHomeScreen
+import pe.edu.upc.polarnet.features.provider.inventory.presentation.ProviderInventoryScreen
 
 @Composable
 fun MainProveedor(
     providerId: Long,
     loginViewModel: LoginViewModel,
-    onTapEquipmentCard: (Long) -> Unit
+    onTapServiceRequest: (Long) -> Unit,
+    onTapEquipment: (Long) -> Unit = {}
 ) {
-    // 👇 Recuperamos el usuario logueado
     val loggedUser = loginViewModel.loggedUser.collectAsState().value
 
     val navigationItems = listOf(
@@ -63,21 +63,21 @@ fun MainProveedor(
         ) {
             when (selectedIndex.intValue) {
 
-                0 -> Home(
-                    onTapEquipmentCard = onTapEquipmentCard,
-                    loginViewModel = loginViewModel
+                0 -> ProviderHomeScreen(
+                    onTapServiceRequest = onTapServiceRequest
                 )
 
-                1 -> Text(
-                    text = "Inventario del proveedor ${loggedUser?.fullName ?: "desconocido"} (ID: $providerId)",
-                    modifier = Modifier.padding(16.dp),
-                    fontWeight = FontWeight.SemiBold
+                1 -> ProviderInventoryScreen(
+                    providerId = providerId,
+                    onTapEquipment = onTapEquipment
                 )
 
-                2 -> Text(
-                    text = "Agregar nuevo producto",
-                    modifier = Modifier.padding(16.dp),
-                    fontWeight = FontWeight.SemiBold
+                2 -> AddEquipmentScreen(
+                    providerId = providerId,
+                    onEquipmentAdded = {
+                        // Volver a inventario después de agregar
+                        selectedIndex.intValue = 1
+                    }
                 )
 
                 3 -> ProfileScreen(loginViewModel = loginViewModel)

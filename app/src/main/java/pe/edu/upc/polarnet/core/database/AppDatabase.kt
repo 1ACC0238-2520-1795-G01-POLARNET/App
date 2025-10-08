@@ -10,12 +10,19 @@ import pe.edu.upc.polarnet.features.client.services.data.local.dao.ServiceReques
 import pe.edu.upc.polarnet.features.client.services.data.local.models.ServiceRequestEntity
 
 @Database(
-    entities = [EquipmentEntity::class, ClientEquipmentEntity::class, ServiceRequestEntity::class],
-    version = 3,
+    entities = [
+        EquipmentEntity::class,
+        ClientEquipmentEntity::class,
+        pe.edu.upc.polarnet.features.client.services.data.local.models.ServiceRequestEntity::class,
+        pe.edu.upc.polarnet.features.provider.home.data.local.models.ServiceRequestEntity::class
+    ],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun equipmentDao(): EquipmentDao
     abstract fun clientEquipmentDao(): ClientEquipmentDao
-    abstract fun serviceRequestDao(): ServiceRequestDao
+    abstract fun serviceRequestDao(): pe.edu.upc.polarnet.features.client.services.data.local.dao.ServiceRequestDao
+    abstract fun providerHomeServiceRequestDao(): pe.edu.upc.polarnet.features.provider.home.data.local.dao.ServiceRequestDao
+
 }

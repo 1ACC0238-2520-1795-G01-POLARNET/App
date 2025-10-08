@@ -36,4 +36,10 @@ object DatabaseModule {
 
     @Provides
     fun provideServiceRequestDao(db: AppDatabase): ServiceRequestDao = db.serviceRequestDao()
+
+    @Provides
+    fun provideProviderHomeServiceRequestDao(db: AppDatabase): pe.edu.upc.polarnet.features.provider.home.data.local.dao.ServiceRequestDao {
+        return db.providerHomeServiceRequestDao()
+    }
+
 }

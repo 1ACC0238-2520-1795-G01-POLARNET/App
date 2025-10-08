@@ -1,5 +1,7 @@
 package pe.edu.upc.polarnet.shared.models
 
+import pe.edu.upc.polarnet.features.auth.domain.models.User
+
 data class ServiceRequest(
     val id: Long,
     val clientId: Long,
@@ -13,5 +15,6 @@ data class ServiceRequest(
     val notes: String?,
     val createdAt: String?,
     // Relación con Equipment
-    val equipment: Equipment?
+    val equipment: Equipment?,
+    val client: User?
 )
