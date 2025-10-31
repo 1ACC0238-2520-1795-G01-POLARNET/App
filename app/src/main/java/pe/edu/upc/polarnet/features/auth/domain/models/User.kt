@@ -1,7 +1,7 @@
 package pe.edu.upc.polarnet.features.auth.domain.models
 
 data class User(
-    val id: Long,
+    val id: Long?,
     val fullName: String,
     val email: String,
     val password: String,

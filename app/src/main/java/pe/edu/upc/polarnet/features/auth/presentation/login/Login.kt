@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,15 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import dagger.hilt.android.lifecycle.HiltViewModel
-import pe.edu.upc.polarnet.core.ui.theme.PolarNetTheme
 import pe.edu.upc.polarnet.features.auth.domain.models.UserRole
 
 @Composable
 fun Login(
     viewModel: LoginViewModel,
     onLoginCliente: () -> Unit,
-    onLoginProveedor: () -> Unit
+    onLoginProveedor: () -> Unit,
+    onNavigateToRegister: () -> Unit
 ) {
     val email = viewModel.email.collectAsState()
     val password = viewModel.password.collectAsState()
@@ -110,6 +110,14 @@ fun Login(
                 color = androidx.compose.ui.graphics.Color.Red,
                 modifier = Modifier.padding(8.dp)
             )
+        }
+
+        // Botón para navegar al registro
+        TextButton(
+            onClick = onNavigateToRegister,
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            Text("¿No tienes cuenta? Regístrate aquí")
         }
     }
 }
