@@ -1,7 +1,5 @@
 package pe.edu.upc.polarnet.features.client.equipments.presentation.equipment
 
-import pe.edu.upc.polarnet.shared.models.ClientEquipment
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import pe.edu.upc.polarnet.shared.models.ClientEquipment
 
 @Composable
 fun ClientEquipmentCard(

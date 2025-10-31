@@ -2,6 +2,7 @@ package pe.edu.upc.polarnet.core.navigation
 
 sealed class Route(val route: String) {
     object Login : Route("login")
+    object Register : Route("register")
     object MainCliente : Route("main_cliente")
     object MainProveedor : Route("main_proveedor")
     object ServiceRequests : Route("service_requests")

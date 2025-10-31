@@ -53,4 +53,70 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
                 null
             }
         }
+
+    override suspend fun register(
+        email: String,
+        password: String,
+        fullName: String,
+        role: UserRole,
+        companyName: String?,
+        phone: String?,
+        location: String?
+    ): User? =
+        withContext(Dispatchers.IO) {
+            try {
+                println("🔍 Intentando registrar usuario con email: $email como ${role.name}")
+
+                // Verificar si el email ya existe
+                val existingUsers = supabase
+                    .from("users")
+                    .select(columns = Columns.ALL) {
+                        filter { eq("email", email) }
+                    }
+                    .decodeList<UserDetailDto>()
+
+                if (existingUsers.isNotEmpty()) {
+                    println("⚠️ El email ya está registrado")
+                    return@withContext null
+                }
+
+                // Crear nuevo usuario con todos los campos
+                val newUserDto = UserDetailDto(
+                    id = null, // Se auto-genera en la BD
+                    fullName = fullName,
+                    email = email,
+                    password = password,
+                    role = role.name.lowercase(),
+                    company = companyName,
+                    phone = phone,
+                    location = location,
+                    createdAt = null
+                )
+
+                val insertedUser = supabase
+                    .from("users")
+                    .insert(newUserDto) {
+                        select()
+                    }
+                    .decodeSingle<UserDetailDto>()
+
+                println("✅ Usuario registrado exitosamente: ${insertedUser.fullName} como ${insertedUser.role}")
+
+                User(
+                    id = insertedUser.id,
+                    fullName = insertedUser.fullName,
+                    email = insertedUser.email,
+                    password = password,
+                    role = UserRole.fromString(insertedUser.role),
+                    companyName = insertedUser.company,
+                    phone = insertedUser.phone,
+                    location = insertedUser.location,
+                    createdAt = insertedUser.createdAt
+                )
+            } catch (e: Exception) {
+                println("💥 Error en registro: ${e.message}")
+                e.printStackTrace()
+                null
+            }
+        }
 }

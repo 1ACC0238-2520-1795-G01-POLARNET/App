@@ -14,6 +14,8 @@ import pe.edu.upc.polarnet.core.root.MainProveedor
 import pe.edu.upc.polarnet.core.ui.theme.PolarNetTheme
 import pe.edu.upc.polarnet.features.auth.presentation.login.Login
 import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
+import pe.edu.upc.polarnet.features.auth.presentation.register.Register
+import pe.edu.upc.polarnet.features.auth.presentation.register.RegisterViewModel
 import pe.edu.upc.polarnet.features.client.home.presentation.equipmentdetail.EquipmentDetail
 import pe.edu.upc.polarnet.features.client.home.presentation.equipmentdetail.EquipmentDetailViewModel
 import pe.edu.upc.polarnet.features.client.services.presentation.serviceRequest.ServiceRequestScreen
@@ -23,6 +25,8 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     val loginViewModel: LoginViewModel = hiltViewModel()
+
+    val registerViewModel: RegisterViewModel = hiltViewModel()
 
     val loggedUser = loginViewModel.loggedUser.collectAsState().value
 
@@ -40,6 +44,25 @@ fun AppNavigation() {
                 onLoginProveedor = {
                     navController.navigate(Route.MainProveedor.route) {
                         popUpTo(Route.Login.route) { inclusive = true }
+                    }
+                },
+                onNavigateToRegister = {
+                    navController.navigate(Route.Register.route)
+                }
+            )
+        }
+        // 🔹 REGISTER SCREEN
+        composable(Route.Register.route) {
+            Register(
+                viewModel = registerViewModel,
+                onNavigateToLogin = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(Route.Register.route) { inclusive = true }
+                    }
+                },
+                onRegisterSuccess = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(Route.Register.route) { inclusive = true }
                     }
                 }
             )
