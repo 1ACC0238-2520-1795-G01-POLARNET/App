@@ -10,20 +10,20 @@ interface ClientEquipmentService {
     // 🔹 Obtener todos los equipos de todos los clientes (solo si es necesario)
     @GET("client_equipment")
     suspend fun getAllClientEquipments(
-        @Query("select") select: String = "*,equipment(*)"
+        @Query("select") select: String = "*,equipments(*)"
     ): Response<List<ClientEquipmentDto>>
 
     // 🔹 Obtener los equipos de un cliente específico
     @GET("client_equipment")
     suspend fun getClientEquipmentsByClientId(
         @Query("client_id") clientId: String,
-        @Query("select") select: String = "*,equipment(*)"
+        @Query("select") select: String = "*,equipments(*)"
     ): Response<List<ClientEquipmentDto>>
 
     // 🔹 Obtener un registro específico por ID (por si quieres ver detalle)
     @GET("client_equipment")
     suspend fun getClientEquipmentById(
         @Query("id") id: String,
-        @Query("select") select: String = "*,equipment(*)"
+        @Query("select") select: String = "*,equipments(*)"
     ): Response<List<ClientEquipmentDto>>
 }
