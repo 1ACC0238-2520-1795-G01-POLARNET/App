@@ -11,7 +11,7 @@ import pe.edu.upc.polarnet.features.auth.domain.models.User
 import pe.edu.upc.polarnet.features.auth.domain.repositories.AuthRepository
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
+class LoginViewModel @Inject constructor(    // 👈 Usa @Inject aquí
     private val repository: AuthRepository
 ) : ViewModel() {
 
@@ -21,7 +21,7 @@ class LoginViewModel @Inject constructor(
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
 
-    // Usuario autenticado globalmente
+    // ✅ Usuario autenticado globalmente
     private val _loggedUser = MutableStateFlow<User?>(null)
     val loggedUser: StateFlow<User?> = _loggedUser
 
@@ -53,18 +53,18 @@ class LoginViewModel @Inject constructor(
             _errorMessage.value = null
 
             try {
-                println("Iniciando login con: ${email.value}")
+                println("🔐 Iniciando login con: ${email.value}")
                 val result = repository.login(email.value, password.value)
 
                 if (result != null) {
-                    println("Usuario autenticado: ${result.fullName} (id=${result.id})")
+                    println("✅ Usuario autenticado: ${result.fullName} (id=${result.id})")
                     _loggedUser.value = result
                 } else {
-                    println("Login falló - credenciales incorrectas")
+                    println("❌ Login falló - credenciales incorrectas")
                     _errorMessage.value = "Correo o contraseña incorrectos"
                 }
             } catch (e: Exception) {
-                println("Excepción en login: ${e.message}")
+                println("💥 Excepción en login: ${e.message}")
                 e.printStackTrace()
                 _errorMessage.value = "Error de conexión: ${e.message}"
             } finally {

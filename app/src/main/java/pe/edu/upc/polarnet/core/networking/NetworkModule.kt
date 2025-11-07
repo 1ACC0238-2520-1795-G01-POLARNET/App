@@ -14,9 +14,9 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://nuzqgqngjujcumiwqerx.supabase.co/rest/v1/"
+    private const val BASE_URL = "https://ivbtkzjqjjblwcokutkk.supabase.co/rest/v1/"
     private const val SUPABASE_KEY =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im51enFncW5nanVqY3VtaXdxZXJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE5MjgyMzEsImV4cCI6MjA3NzUwNDIzMX0.i6pzqIz_VCCiz14bu24sujqdu5KdF9w59fxxgCpF_cg"
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2YnRrempxampibHdjb2t1dGtrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3ODU5MDQsImV4cCI6MjA3NTM2MTkwNH0.pWyezcw8v9rwFfeSlhIBcqcN3isZvOMhCvrf83HggsA"
 
     @Provides
     @Singleton

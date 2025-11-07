@@ -4,23 +4,23 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder  // ← CAMBIAR
 import pe.edu.upc.polarnet.core.networking.SupabaseClient
 import pe.edu.upc.polarnet.features.auth.data.models.UserDetailDto
 import pe.edu.upc.polarnet.features.auth.domain.models.User
 import pe.edu.upc.polarnet.features.auth.domain.models.UserRole
 import pe.edu.upc.polarnet.features.auth.domain.repositories.AuthRepository
-import javax.inject.Inject
+import javax.inject.Inject // 👈 AÑADE ESTO
 
-class AuthRepositoryImpl @Inject constructor() : AuthRepository {
+class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
+) : AuthRepository {
 
     private val supabase = SupabaseClient.client
-    private val passwordEncoder = BCryptPasswordEncoder()  // ← AGREGAR
 
     override suspend fun login(email: String, password: String): User? =
         withContext(Dispatchers.IO) {
             try {
-                println("Intentando login con email: $email")
+                println("🔍 Intentando login con email: $email")
+                println("🔗 URL Supabase: ${supabase.supabaseUrl}")
 
                 val users = supabase
                     .from("users")
@@ -29,27 +29,18 @@ class AuthRepositoryImpl @Inject constructor() : AuthRepository {
                     }
                     .decodeList<UserDetailDto>()
 
-                if (users.isEmpty()) {
-                    println("Usuario no encontrado")
-                    return@withContext null
-                }
+                if (users.isEmpty()) return@withContext null
 
                 val userDto = users.first()
-                println("Usuario encontrado: ${userDto.fullName}")
+                if (userDto.password != password) return@withContext null
 
-                // Verificar password con Spring BCrypt
-                if (!passwordEncoder.matches(password, userDto.password)) {
-                    println("Password incorrecta")
-                    return@withContext null
-                }
-
-                println("Login exitoso para: ${userDto.fullName}")
+                println("✅ Login exitoso para: ${userDto.fullName}")
 
                 User(
-                    id = userDto.id ?: 0,
+                    id = userDto.id,
                     fullName = userDto.fullName,
                     email = userDto.email,
-                    password = "",
+                    password = password,
                     role = UserRole.fromString(userDto.role),
                     companyName = userDto.company,
                     phone = userDto.phone,
@@ -57,7 +48,7 @@ class AuthRepositoryImpl @Inject constructor() : AuthRepository {
                     createdAt = userDto.createdAt
                 )
             } catch (e: Exception) {
-                println("Error en login: ${e.message}")
+                println("💥 Error en login: ${e.message}")
                 e.printStackTrace()
                 null
             }
@@ -74,8 +65,9 @@ class AuthRepositoryImpl @Inject constructor() : AuthRepository {
     ): User? =
         withContext(Dispatchers.IO) {
             try {
-                println("Intentando registrar usuario")
+                println("🔍 Intentando registrar usuario con email: $email como ${role.name}")
 
+                // Verificar si el email ya existe
                 val existingUsers = supabase
                     .from("users")
                     .select(columns = Columns.ALL) {
@@ -84,19 +76,17 @@ class AuthRepositoryImpl @Inject constructor() : AuthRepository {
                     .decodeList<UserDetailDto>()
 
                 if (existingUsers.isNotEmpty()) {
-                    println("El email ya está registrado")
+                    println("⚠️ El email ya está registrado")
                     return@withContext null
                 }
 
-                // Encriptar password
-                val hashedPassword = passwordEncoder.encode(password)
-
+                // Crear nuevo usuario con todos los campos
                 val newUserDto = UserDetailDto(
-                    id = null,
+                    id = null, // Se auto-genera en la BD
                     fullName = fullName,
                     email = email,
-                    password = hashedPassword,
-                    role = role.name.uppercase(),
+                    password = password,
+                    role = role.name.lowercase(),
                     company = companyName,
                     phone = phone,
                     location = location,
@@ -110,13 +100,13 @@ class AuthRepositoryImpl @Inject constructor() : AuthRepository {
                     }
                     .decodeSingle<UserDetailDto>()
 
-                println("Usuario registrado: ${insertedUser.fullName}")
+                println("✅ Usuario registrado exitosamente: ${insertedUser.fullName} como ${insertedUser.role}")
 
                 User(
-                    id = insertedUser.id ?: 0,
+                    id = insertedUser.id,
                     fullName = insertedUser.fullName,
                     email = insertedUser.email,
-                    password = "",
+                    password = password,
                     role = UserRole.fromString(insertedUser.role),
                     companyName = insertedUser.company,
                     phone = insertedUser.phone,
@@ -124,7 +114,7 @@ class AuthRepositoryImpl @Inject constructor() : AuthRepository {
                     createdAt = insertedUser.createdAt
                 )
             } catch (e: Exception) {
-                println("Error en registro: ${e.message}")
+                println("💥 Error en registro: ${e.message}")
                 e.printStackTrace()
                 null
             }

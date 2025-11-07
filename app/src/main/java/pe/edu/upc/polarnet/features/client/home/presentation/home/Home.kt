@@ -3,21 +3,40 @@ package pe.edu.upc.polarnet.features.client.home.presentation.home
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.FilterList
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,308 +48,172 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pe.edu.upc.polarnet.R
-import pe.edu.upc.polarnet.core.ui.theme.polarNetColors
+import pe.edu.upc.polarnet.core.ui.components.RoundedIcon
+import pe.edu.upc.polarnet.core.ui.components.WidthSpacer
 import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
 
 @Composable
 fun Home(
     viewModel: HomeViewModel = hiltViewModel(),
     onTapEquipmentCard: (Long) -> Unit,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel // ✅ Recibido desde Main
 ) {
     val loggedUser = loginViewModel.loggedUser.collectAsState().value
-    val categories = listOf("Todo", "Congeladores", "Refrigeradores", "Vitrinas", "CSR")
-    var selectedCategory by remember { mutableStateOf("Todo") }
-    val equipments by viewModel.equipments.collectAsState()
-    val colors = MaterialTheme.polarNetColors
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        // Header con gradiente
-        Box(
+    val categories = listOf("All", "Freezers", "Refrigerators", "Showcases", "CSR")
+    val selectedCategory = remember { mutableStateOf("All") }
+    val equipments by viewModel.equipments.collectAsState()
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // 🔹 Header con saludo dinámico
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            colors.gradientStart,
-                            colors.gradientMiddle,
-                            colors.gradientEnd
-                        )
-                    )
-                )
-                .padding(horizontal = 20.dp, vertical = 24.dp)
+                .padding(8.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.primary)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Surface(
-                        modifier = Modifier.size(48.dp),
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.2f)
-                    ) {
-                        Icon(
-                            Icons.Default.Person,
-                            contentDescription = null,
-                            modifier = Modifier.padding(12.dp),
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
+                Icon(
+                    Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
 
-                    Column {
-                        Text(
-                            text = "Hola, ${loggedUser?.fullName ?: "Usuario"}",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
-                        )
-                        Text(
-                            text = "Bienvenido a PolarNet",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-                }
+            WidthSpacer()
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Hola, ${loggedUser?.fullName ?: "Usuario"} ",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = "¡Bienvenido a PolarNet!",
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+            WidthSpacer()
+            RoundedIcon(Icons.Outlined.Notifications)
+            WidthSpacer()
+            RoundedIcon(Icons.Outlined.ShoppingCart)
+        }
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    IconButton(onClick = { /* Notificaciones */ }) {
-                        Icon(
-                            Icons.Outlined.Notifications,
-                            contentDescription = "Notificaciones",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                    IconButton(onClick = { /* Carrito */ }) {
-                        Icon(
-                            Icons.Outlined.ShoppingCart,
-                            contentDescription = "Carrito",
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-                }
+        // 🔹 Campo de búsqueda
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            OutlinedTextField(
+                value = "",
+                onValueChange = {},
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                placeholder = { Text(stringResource(R.string.placeholder_search)) },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(16.dp)
+            )
+            WidthSpacer()
+            RoundedIcon(Icons.Outlined.FilterList)
+        }
+
+        // 🔹 Categorías
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.label_categories),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = {}) { Text(stringResource(R.string.button_see_all)) }
+        }
+
+        LazyRow {
+            items(categories) { category ->
+                FilterChip(
+                    selected = selectedCategory.value == category,
+                    onClick = { selectedCategory.value = category },
+                    label = { Text(category) },
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Búsqueda y filtro
+        // 🔹 Banner promocional
+        Box(modifier = Modifier.padding(8.dp)) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedTextField(
-                    value = "",
-                    onValueChange = {},
-                    leadingIcon = {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    placeholder = { Text("Buscar equipos...") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                    )
-                )
-
-                FilledIconButton(
-                    onClick = { /* Filtros */ },
-                    modifier = Modifier.size(56.dp),
-                    colors = IconButtonDefaults.filledIconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Icon(
-                        Icons.Outlined.FilterList,
-                        contentDescription = "Filtros",
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Categorías
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Categorías",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                TextButton(onClick = {}) {
-                    Text(
-                        text = "Ver todo",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(categories) { category ->
-                    FilterChip(
-                        selected = selectedCategory == category,
-                        onClick = { selectedCategory = category },
-                        label = {
-                            Text(
-                                text = category,
-                                fontWeight = if (selectedCategory == category) FontWeight.SemiBold else FontWeight.Normal
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(192.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(
+                        brush = Brush.linearGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.inversePrimary
                             )
-                        },
-                        leadingIcon = if (selectedCategory == category) {
-                            {
-                                Icon(
-                                    Icons.Default.Check,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        } else null
+                        )
                     )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Banner promocional
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Row(
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(180.dp)
-                        .background(
-                            Brush.horizontalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary,
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
-                                )
-                            )
-                        )
+                        .padding(16.dp)
+                        .fillMaxHeight()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(20.dp)
-                            .fillMaxHeight()
-                            .weight(1f),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Descuento especial hasta 40%",
-                            color = MaterialTheme.colorScheme.onPrimary,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Button(
-                            onClick = {},
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.primary
-                            ),
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Text(
-                                text = "Comprar ahora",
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
-                    Image(
-                        painterResource(R.drawable.banner),
-                        contentDescription = null,
-                        contentScale = ContentScale.FillHeight,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f)
+                    Text(
+                        "Get your special sale up to 40%",
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold
                     )
+                    ElevatedButton(onClick = {}) { Text("Shop now") }
+                }
+                Image(
+                    painterResource(R.drawable.banner),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
+                )
+            }
+        }
+
+        // 🔹 Equipos
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.label_equipments),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+            TextButton(onClick = {}) { Text(stringResource(R.string.button_see_all)) }
+        }
+
+        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+            items(equipments) { equipment ->
+                EquipmentCard(equipment) {
+                    Log.d("Home", equipment.id.toString())
+                    onTapEquipmentCard(equipment.id)
                 }
             }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Equipos
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "Equipos Disponibles",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = "${equipments.size} productos",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                TextButton(onClick = {}) {
-                    Text(
-                        text = "Ver todo",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Grid de equipos
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.height(600.dp)
-            ) {
-                items(equipments) { equipment ->
-                    EquipmentCard(equipment) {
-                        Log.d("Home", equipment.id.toString())
-                        onTapEquipmentCard(equipment.id)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

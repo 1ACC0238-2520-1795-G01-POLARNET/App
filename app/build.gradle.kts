@@ -112,8 +112,4 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-
-    // BCrypt
-    implementation("org.springframework.security:spring-security-crypto:6.1.5")
-    implementation("commons-logging:commons-logging:1.2")
 }
