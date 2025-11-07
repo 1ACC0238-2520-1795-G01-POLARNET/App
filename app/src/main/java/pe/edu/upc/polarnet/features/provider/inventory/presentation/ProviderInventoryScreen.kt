@@ -1,53 +1,29 @@
 package pe.edu.upc.polarnet.features.provider.inventory.presentation
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import pe.edu.upc.polarnet.core.ui.theme.polarNetColors
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderInventoryScreen(
     providerId: Long,
     viewModel: ProviderInventoryViewModel = hiltViewModel(),
     onTapEquipment: (Long) -> Unit = {}
 ) {
-    // Cargar equipos cuando se monta la pantalla
     LaunchedEffect(providerId) {
         viewModel.loadProviderEquipments(providerId)
     }
@@ -58,124 +34,274 @@ fun ProviderInventoryScreen(
     val selectedCategory = viewModel.selectedCategory.collectAsState().value
     val showOnlyAvailable = viewModel.showOnlyAvailable.collectAsState().value
     val categories = viewModel.getCategories()
+    val colors = MaterialTheme.polarNetColors
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        // Header con gradiente
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            colors.gradientStart,
+                            colors.gradientMiddle,
+                            colors.gradientEnd
+                        )
+                    )
+                )
+                .padding(horizontal = 24.dp, vertical = 32.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Inventory,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(32.dp)
+                    )
                     Column {
-                        Text("Mi Inventario", fontWeight = FontWeight.Bold)
                         Text(
-                            text = "${equipments.size} equipos",
-                            fontSize = 12.sp,
-                            color = Color.Gray
+                            text = "Mi Inventario",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Text(
+                            text = "${equipments.size} equipos totales",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
                         )
                     }
-                },
-                actions = {
-                    IconButton(onClick = { viewModel.refreshEquipments(providerId) }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Actualizar")
-                    }
                 }
-            )
+
+                IconButton(
+                    onClick = { viewModel.refreshEquipments(providerId) },
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Refresh,
+                        contentDescription = "Actualizar",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
         }
-    ) { paddingValues ->
+
+        // Filtros
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Filtros
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+            // Filtro de disponibilidad
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = if (showOnlyAvailable)
+                    colors.success.colorContainer.copy(alpha = 0.3f)
+                else
+                    MaterialTheme.colorScheme.surfaceVariant,
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    if (showOnlyAvailable)
+                        colors.success.color.copy(alpha = 0.5f)
+                    else
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+                ),
+                onClick = { viewModel.toggleAvailabilityFilter() }
             ) {
-                // Filtro de disponibilidad
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { viewModel.toggleAvailabilityFilter() }
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Checkbox(
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Icon(
+                            if (showOnlyAvailable) Icons.Default.CheckCircle else Icons.Default.FilterAlt,
+                            contentDescription = null,
+                            tint = if (showOnlyAvailable)
+                                colors.success.color
+                            else
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "Mostrar solo disponibles",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    Switch(
                         checked = showOnlyAvailable,
                         onCheckedChange = { viewModel.toggleAvailabilityFilter() }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Mostrar solo disponibles", fontSize = 14.sp)
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Filtro por categorías
-                if (categories.isNotEmpty()) {
-                    Text(
-                        text = "Categorías",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    CategoryFilterRow(
-                        categories = categories,
-                        selectedCategory = selectedCategory,
-                        onCategorySelected = { viewModel.filterByCategory(it) }
                     )
                 }
             }
 
-            Divider()
+            // Filtro por categorías
+            if (categories.isNotEmpty()) {
+                Text(
+                    text = "Categorías",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-            // Contenido
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item {
+                        FilterChip(
+                            selected = selectedCategory == "all",
+                            onClick = { viewModel.filterByCategory("all") },
+                            label = { Text("Todas") },
+                            leadingIcon = if (selectedCategory == "all") {
+                                {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            } else null,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    }
+
+                    items(categories) { category ->
+                        FilterChip(
+                            selected = selectedCategory == category,
+                            onClick = { viewModel.filterByCategory(category) },
+                            label = { Text(category) },
+                            leadingIcon = if (selectedCategory == category) {
+                                {
+                                    Icon(
+                                        Icons.Default.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            } else null,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    }
+                }
+            }
+        }
+
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+        // Contenido
+        Box(modifier = Modifier.fillMaxSize()) {
             when {
                 isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Cargando inventario...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
 
                 errorMessage != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = errorMessage,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(onClick = { viewModel.refreshEquipments(providerId) }) {
-                                Text("Reintentar")
-                            }
+                        Icon(
+                            Icons.Default.ErrorOutline,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = colors.critical.color
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Error al cargar",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colors.critical.color
+                        )
+                        Text(
+                            text = errorMessage,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(onClick = { viewModel.refreshEquipments(providerId) }) {
+                            Icon(Icons.Default.Refresh, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Reintentar")
                         }
                     }
                 }
 
                 equipments.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "No hay equipos registrados",
-                                fontSize = 16.sp,
-                                color = Color.Gray
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Agrega equipos desde el botón '+'",
-                                fontSize = 14.sp,
-                                color = Color.LightGray
-                            )
-                        }
+                        Icon(
+                            Icons.Default.Inventory2,
+                            contentDescription = null,
+                            modifier = Modifier.size(72.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = if (selectedCategory != "all" || showOnlyAvailable)
+                                "No hay equipos con estos filtros"
+                            else
+                                "No hay equipos registrados",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = if (selectedCategory != "all" || showOnlyAvailable)
+                                "Intenta ajustar los filtros"
+                            else
+                                "Agrega equipos desde el botón '+'",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
                     }
                 }
 
@@ -185,6 +311,41 @@ fun ProviderInventoryScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
+                        // Estadísticas rápidas
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                val availableCount = equipments.count { it.available }
+                                val unavailableCount = equipments.size - availableCount
+
+                                if (availableCount > 0) {
+                                    QuickStatCard(
+                                        label = "Disponibles",
+                                        count = availableCount,
+                                        icon = Icons.Default.CheckCircle,
+                                        color = colors.success.colorContainer,
+                                        onColor = colors.success.onColorContainer,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+
+                                if (unavailableCount > 0) {
+                                    QuickStatCard(
+                                        label = "No disponibles",
+                                        count = unavailableCount,
+                                        icon = Icons.Default.Cancel,
+                                        color = colors.warning.colorContainer,
+                                        onColor = colors.warning.onColorContainer,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            }
+                        }
+
                         items(equipments) { equipment ->
                             EquipmentInventoryCard(
                                 equipment = equipment,
@@ -199,31 +360,43 @@ fun ProviderInventoryScreen(
 }
 
 @Composable
-fun CategoryFilterRow(
-    categories: List<String>,
-    selectedCategory: String,
-    onCategorySelected: (String) -> Unit
+private fun QuickStatCard(
+    label: String,
+    count: Int,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    color: androidx.compose.ui.graphics.Color,
+    onColor: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier
 ) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = color
     ) {
-        // Opción "Todas"
-        item {
-            FilterChip(
-                selected = selectedCategory == "all",
-                onClick = { onCategorySelected("all") },
-                label = { Text("Todas") }
+        Row(
+            modifier = Modifier.padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = onColor,
+                modifier = Modifier.size(20.dp)
             )
-        }
-
-        // Categorías dinámicas
-        items(categories) { category ->
-            FilterChip(
-                selected = selectedCategory == category,
-                onClick = { onCategorySelected(category) },
-                label = { Text(category) }
-            )
+            Column {
+                Text(
+                    text = count.toString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = onColor
+                )
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = onColor.copy(alpha = 0.8f)
+                )
+            }
         }
     }
 }
-

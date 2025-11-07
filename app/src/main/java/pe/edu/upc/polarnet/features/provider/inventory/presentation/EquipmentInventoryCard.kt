@@ -2,32 +2,20 @@ package pe.edu.upc.polarnet.features.provider.inventory.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import pe.edu.upc.polarnet.core.ui.theme.polarNetColors
 import pe.edu.upc.polarnet.shared.models.Equipment
 
 @Composable
@@ -35,30 +23,68 @@ fun EquipmentInventoryCard(
     equipment: Equipment,
     onClick: () -> Unit
 ) {
+    val colors = MaterialTheme.polarNetColors
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Imagen del equipo
-            AsyncImage(
-                model = equipment.thumbnail,
-                contentDescription = equipment.name,
+            Box(
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color.LightGray),
-                contentScale = ContentScale.Crop
-            )
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+            ) {
+                AsyncImage(
+                    model = equipment.thumbnail,
+                    contentDescription = equipment.name,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
 
-            Spacer(modifier = Modifier.width(12.dp))
+                // Badge de disponibilidad en la imagen
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    color = if (equipment.available)
+                        colors.success.colorContainer
+                    else
+                        colors.warning.colorContainer
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(RoundedCornerShape(50))
+                                .background(
+                                    if (equipment.available)
+                                        colors.success.color
+                                    else
+                                        colors.warning.color
+                                )
+                        )
+                    }
+                }
+            }
 
             // Información del equipo
             Column(
@@ -67,74 +93,112 @@ fun EquipmentInventoryCard(
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = equipment.name,
-                        fontSize = 16.sp,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 2
                     )
 
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = equipment.category,
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
+                    // Categoría con icono
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.Category,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = equipment.category,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
                     // Marca y modelo
                     if (equipment.brand != null || equipment.model != null) {
-                        Text(
-                            text = "${equipment.brand ?: ""} ${equipment.model ?: ""}".trim(),
-                            fontSize = 12.sp,
-                            color = Color.DarkGray
-                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                Icons.Default.Label,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "${equipment.brand ?: ""} ${equipment.model ?: ""}".trim(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Precio y estado
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.Bottom
                 ) {
                     // Precio
-                    Text(
-                        text = "S/ ${String.format("%.2f", equipment.pricePerMonth)}/mes",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Column {
+                        Text(
+                            text = "Precio/mes",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "S/ ${String.format("%.2f", equipment.pricePerMonth)}",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
 
-                    // Estado de disponibilidad
-                    AvailabilityBadge(available = equipment.available)
+                    // Estado
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = if (equipment.available)
+                            colors.success.colorContainer
+                        else
+                            colors.warning.colorContainer
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                if (equipment.available) Icons.Default.CheckCircle else Icons.Default.Block,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = if (equipment.available)
+                                    colors.success.onColorContainer
+                                else
+                                    colors.warning.onColorContainer
+                            )
+                            Text(
+                                text = if (equipment.available) "Disponible" else "Ocupado",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (equipment.available)
+                                    colors.success.onColorContainer
+                                else
+                                    colors.warning.onColorContainer
+                            )
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun AvailabilityBadge(available: Boolean) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .clip(RoundedCornerShape(50))
-                .background(if (available) Color(0xFF4CAF50) else Color(0xFFF44336))
-        )
-        Text(
-            text = if (available) "Disponible" else "No disponible",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            color = if (available) Color(0xFF4CAF50) else Color(0xFFF44336)
-        )
     }
 }

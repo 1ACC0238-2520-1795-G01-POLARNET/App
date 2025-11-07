@@ -1,41 +1,25 @@
 package pe.edu.upc.polarnet.features.provider.home.presentation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import pe.edu.upc.polarnet.core.ui.theme.polarNetColors
 import pe.edu.upc.polarnet.features.provider.home.presentation.home.ProviderHomeViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProviderHomeScreen(
     viewModel: ProviderHomeViewModel = hiltViewModel(),
@@ -45,70 +29,211 @@ fun ProviderHomeScreen(
     val isLoading = viewModel.isLoading.collectAsState().value
     val errorMessage = viewModel.errorMessage.collectAsState().value
     val selectedFilter = viewModel.selectedFilter.collectAsState().value
+    val colors = MaterialTheme.polarNetColors
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Solicitudes de Servicio", fontWeight = FontWeight.Bold) },
-                actions = {
-                    IconButton(onClick = { viewModel.loadServiceRequests() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Actualizar")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        // Header con gradiente
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            colors.gradientStart,
+                            colors.gradientMiddle,
+                            colors.gradientEnd
+                        )
+                    )
+                )
+                .padding(horizontal = 24.dp, vertical = 32.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Assignment,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Column {
+                        Text(
+                            text = "Solicitudes",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                        Text(
+                            text = "${serviceRequests.size} en total",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
+                        )
                     }
                 }
-            )
+
+                IconButton(
+                    onClick = { viewModel.loadServiceRequests() },
+                    modifier = Modifier.size(40.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Refresh,
+                        contentDescription = "Actualizar",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+            }
         }
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            // Filtros de estado
-            StatusFilterRow(
-                selectedFilter = selectedFilter,
-                onFilterSelected = { viewModel.filterByStatus(it) }
-            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+        // Filtros de estado
+        StatusFilterRow(
+            selectedFilter = selectedFilter,
+            onFilterSelected = { viewModel.filterByStatus(it) }
+        )
 
-            // Contenido
+        // Estadísticas rápidas
+        if (serviceRequests.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val pendingCount = serviceRequests.count { it.status == "pending" }
+                val inProgressCount = serviceRequests.count { it.status == "in_progress" }
+                val completedCount = serviceRequests.count { it.status == "completed" }
+
+                if (pendingCount > 0) {
+                    QuickStatCard(
+                        label = "Pendientes",
+                        count = pendingCount,
+                        color = colors.warning.colorContainer,
+                        onColor = colors.warning.onColorContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                if (inProgressCount > 0) {
+                    QuickStatCard(
+                        label = "En Progreso",
+                        count = inProgressCount,
+                        color = colors.info.colorContainer,
+                        onColor = colors.info.onColorContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                if (completedCount > 0) {
+                    QuickStatCard(
+                        label = "Completadas",
+                        count = completedCount,
+                        color = colors.success.colorContainer,
+                        onColor = colors.success.onColorContainer,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+        }
+
+        // Contenido
+        Box(modifier = Modifier.fillMaxSize()) {
             when {
                 isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        CircularProgressIndicator()
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(48.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Cargando solicitudes...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
 
                 errorMessage != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = errorMessage,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(onClick = { viewModel.loadServiceRequests() }) {
-                                Text("Reintentar")
-                            }
+                        Icon(
+                            Icons.Default.ErrorOutline,
+                            contentDescription = null,
+                            modifier = Modifier.size(64.dp),
+                            tint = colors.critical.color
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Error al cargar",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = colors.critical.color
+                        )
+                        Text(
+                            text = errorMessage,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Button(onClick = { viewModel.loadServiceRequests() }) {
+                            Icon(Icons.Default.Refresh, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Reintentar")
                         }
                     }
                 }
 
                 serviceRequests.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
+                        Icon(
+                            Icons.Default.AssignmentLate,
+                            contentDescription = null,
+                            modifier = Modifier.size(72.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = "No hay solicitudes",
-                            fontSize = 16.sp,
-                            color = Color.Gray
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = if (selectedFilter == "all")
+                                "Aún no tienes solicitudes de servicio"
+                            else
+                                "No hay solicitudes con este estado",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            modifier = Modifier.padding(top = 8.dp)
                         )
                     }
                 }
@@ -133,7 +258,7 @@ fun ProviderHomeScreen(
 }
 
 @Composable
-fun StatusFilterRow(
+private fun StatusFilterRow(
     selectedFilter: String,
     onFilterSelected: (String) -> Unit
 ) {
@@ -144,17 +269,59 @@ fun StatusFilterRow(
         "completed" to "Completadas"
     )
 
-    Row(
+    LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        filters.forEach { (key, label) ->
+        items(filters) { (key, label) ->
             FilterChip(
                 selected = selectedFilter == key,
                 onClick = { onFilterSelected(key) },
-                label = { Text(label) }
+                label = { Text(label) },
+                leadingIcon = if (selectedFilter == key) {
+                    {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                } else null,
+                shape = RoundedCornerShape(12.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun QuickStatCard(
+    label: String,
+    count: Int,
+    color: androidx.compose.ui.graphics.Color,
+    onColor: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        color = color
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = onColor
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = onColor.copy(alpha = 0.8f)
             )
         }
     }
