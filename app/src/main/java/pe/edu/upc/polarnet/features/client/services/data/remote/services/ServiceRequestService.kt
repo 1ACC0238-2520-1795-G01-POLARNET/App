@@ -14,7 +14,7 @@ interface ServiceRequestService {
 
     @GET("service_requests")
     suspend fun getServiceRequestsByClient(
-        @Query("client_company_id") clientId: String,
+        @Query("client_id") clientId: String,
         @Query("select") select: String = "*"
     ): Response<List<ServiceRequestDto>>
 
