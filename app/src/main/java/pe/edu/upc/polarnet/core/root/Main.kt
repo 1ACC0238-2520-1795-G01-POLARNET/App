@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
 import pe.edu.upc.polarnet.core.profile.ProfileScreen
 import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
-import pe.edu.upc.polarnet.features.client.equipments.presentation.ClientEquipmentsScreen
+import pe.edu.upc.polarnet.features.client.equipments.presentation.equipment.ClientEquipmentsScreen
 import pe.edu.upc.polarnet.features.client.home.presentation.home.Home
 import pe.edu.upc.polarnet.features.client.services.presentation.ServiceRequestViewModel
 import pe.edu.upc.polarnet.features.client.services.presentation.serviceRequest.ServiceRequestScreen

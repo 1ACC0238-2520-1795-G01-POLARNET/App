@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class UserDetailDto(
     @Transient
     val id: Long? = null,
-    @SerialName("full_name")
+    @SerialName("name")
     val fullName: String,
     val email: String,
     val password: String,
