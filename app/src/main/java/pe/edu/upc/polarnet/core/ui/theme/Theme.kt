@@ -1,4 +1,5 @@
 package pe.edu.upc.polarnet.core.ui.theme
+
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -7,9 +8,15 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+
+// ============================================
+// COLOR SCHEMES - Material 3
+// ============================================
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -239,6 +246,10 @@ private val highContrastDarkColorScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
 )
 
+// ============================================
+// EXTENDED COLOR SCHEME - Colores semánticos personalizados
+// ============================================
+
 @Immutable
 data class ColorFamily(
     val color: Color,
@@ -248,30 +259,225 @@ data class ColorFamily(
 )
 
 val unspecified_scheme = ColorFamily(
-    Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
+    Color.Unspecified,
+    Color.Unspecified,
+    Color.Unspecified,
+    Color.Unspecified
 )
 
+/**
+ * Colores extendidos de PolarNet para estados específicos de temperatura
+ * y equipos. Accesibles vía MaterialTheme.colorScheme.polarNetColors
+ */
+@Immutable
+data class PolarNetExtendedColors(
+    // Estados de temperatura
+    val success: ColorFamily,
+    val warning: ColorFamily,
+    val critical: ColorFamily,
+    val info: ColorFamily,
+
+    // Estados de equipos
+    val offline: Color,
+    val active: Color,
+    val maintenance: Color,
+
+    // Colores para gráficos
+    val chartBlue: Color,
+    val chartCyan: Color,
+    val chartTeal: Color,
+    val chartGreen: Color,
+    val chartOrange: Color,
+    val chartRed: Color,
+    val chartPurple: Color,
+
+    // Gradientes
+    val gradientStart: Color,
+    val gradientMiddle: Color,
+    val gradientEnd: Color,
+)
+
+private val lightPolarNetExtendedColors = PolarNetExtendedColors(
+    success = ColorFamily(
+        color = successLight,
+        onColor = onSuccessLight,
+        colorContainer = successContainerLight,
+        onColorContainer = onSuccessContainerLight
+    ),
+    warning = ColorFamily(
+        color = warningLight,
+        onColor = onWarningLight,
+        colorContainer = warningContainerLight,
+        onColorContainer = onWarningContainerLight
+    ),
+    critical = ColorFamily(
+        color = criticalLight,
+        onColor = onCriticalLight,
+        colorContainer = criticalContainerLight,
+        onColorContainer = onCriticalContainerLight
+    ),
+    info = ColorFamily(
+        color = infoLight,
+        onColor = onInfoLight,
+        colorContainer = infoContainerLight,
+        onColorContainer = onInfoContainerLight
+    ),
+    offline = offlineLight,
+    active = activeLight,
+    maintenance = maintenanceLight,
+    chartBlue = chartBlue,
+    chartCyan = chartCyan,
+    chartTeal = chartTeal,
+    chartGreen = chartGreen,
+    chartOrange = chartOrange,
+    chartRed = chartRed,
+    chartPurple = chartPurple,
+    gradientStart = gradientStart,
+    gradientMiddle = gradientMiddle,
+    gradientEnd = gradientEnd,
+)
+
+private val darkPolarNetExtendedColors = PolarNetExtendedColors(
+    success = ColorFamily(
+        color = successDark,
+        onColor = onSuccessDark,
+        colorContainer = successContainerDark,
+        onColorContainer = onSuccessContainerDark
+    ),
+    warning = ColorFamily(
+        color = warningDark,
+        onColor = onWarningDark,
+        colorContainer = warningContainerDark,
+        onColorContainer = onWarningContainerDark
+    ),
+    critical = ColorFamily(
+        color = criticalDark,
+        onColor = onCriticalDark,
+        colorContainer = criticalContainerDark,
+        onColorContainer = onCriticalContainerDark
+    ),
+    info = ColorFamily(
+        color = infoDark,
+        onColor = onInfoDark,
+        colorContainer = infoContainerDark,
+        onColorContainer = onInfoContainerDark
+    ),
+    offline = offlineDark,
+    active = activeDark,
+    maintenance = maintenanceDark,
+    chartBlue = chartBlue,
+    chartCyan = chartCyan,
+    chartTeal = chartTeal,
+    chartGreen = chartGreen,
+    chartOrange = chartOrange,
+    chartRed = chartRed,
+    chartPurple = chartPurple,
+    gradientStart = gradientStart,
+    gradientMiddle = gradientMiddle,
+    gradientEnd = gradientEnd,
+)
+
+// CompositionLocal para acceder a los colores extendidos
+val LocalPolarNetExtendedColors = staticCompositionLocalOf { lightPolarNetExtendedColors }
+
+// Extension para acceder fácilmente a los colores personalizados
+val MaterialTheme.polarNetColors: PolarNetExtendedColors
+    @Composable
+    get() = LocalPolarNetExtendedColors.current
+
+// ============================================
+// POLARNET THEME - Tema principal
+// ============================================
+
+/**
+ * Tema principal de PolarNet con soporte para:
+ * - Dynamic Color (Material You) en Android 12+
+ * - Modo oscuro
+ * - Colores semánticos extendidos
+ * - Tipografía personalizada
+ *
+ * @param darkTheme Activa el modo oscuro
+ * @param dynamicColor Activa colores dinámicos en Android 12+ (desactívalo si quieres colores fijos de marca)
+ */
 @Composable
 fun PolarNetTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable() () -> Unit
+    dynamicColor: Boolean = false,  // Cambiado a false por defecto para mantener identidad de marca
+    content: @Composable () -> Unit
 ) {
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> darkScheme
         else -> lightScheme
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    val extendedColors = if (darkTheme) {
+        darkPolarNetExtendedColors
+    } else {
+        lightPolarNetExtendedColors
+    }
+
+    CompositionLocalProvider(
+        LocalPolarNetExtendedColors provides extendedColors
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }
 
+// ============================================
+// UTILITY FUNCTIONS - Funciones de ayuda
+// ============================================
+
+/**
+ * Determina el color apropiado para un estado de temperatura
+ * @param temperature Temperatura actual
+ * @param minTemp Temperatura mínima permitida
+ * @param maxTemp Temperatura máxima permitida
+ * @param warningThreshold Umbral de advertencia (porcentaje del rango)
+ * @return ColorFamily apropiado (success, warning, critical)
+ */
+@Composable
+fun getTemperatureStatusColor(
+    temperature: Float,
+    minTemp: Float,
+    maxTemp: Float,
+    warningThreshold: Float = 0.1f
+): ColorFamily {
+    val colors = MaterialTheme.polarNetColors
+
+    return when {
+        temperature < minTemp || temperature > maxTemp -> colors.critical
+        temperature < minTemp + (maxTemp - minTemp) * warningThreshold ||
+                temperature > maxTemp - (maxTemp - minTemp) * warningThreshold -> colors.warning
+        else -> colors.success
+    }
+}
+
+/**
+ * Obtiene el color apropiado para un estado de equipo
+ * @param isOnline Si el equipo está conectado
+ * @param isActive Si el equipo está funcionando
+ * @param inMaintenance Si el equipo está en mantenimiento
+ */
+@Composable
+fun getEquipmentStatusColor(
+    isOnline: Boolean,
+    isActive: Boolean = false,
+    inMaintenance: Boolean = false
+): Color {
+    val colors = MaterialTheme.polarNetColors
+
+    return when {
+        !isOnline -> colors.offline
+        inMaintenance -> colors.maintenance
+        isActive -> colors.active
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+}
