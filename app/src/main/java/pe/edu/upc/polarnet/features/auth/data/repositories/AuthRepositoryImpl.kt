@@ -11,7 +11,7 @@ import pe.edu.upc.polarnet.features.auth.domain.models.UserRole
 import pe.edu.upc.polarnet.features.auth.domain.repositories.AuthRepository
 import javax.inject.Inject // 👈 AÑADE ESTO
 
-class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
+class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
 
     private val supabase = SupabaseClient.client
@@ -19,8 +19,8 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
     override suspend fun login(email: String, password: String): User? =
         withContext(Dispatchers.IO) {
             try {
-                println("🔍 Intentando login con email: $email")
-                println("🔗 URL Supabase: ${supabase.supabaseUrl}")
+                println(" Intentando login con email: $email")
+                println(" URL Supabase: ${supabase.supabaseUrl}")
 
                 val users = supabase
                     .from("users")
@@ -34,10 +34,10 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
                 val userDto = users.first()
                 if (userDto.password != password) return@withContext null
 
-                println("✅ Login exitoso para: ${userDto.fullName}")
-                println("🔑 ID del usuario: ${userDto.id}")
-                println("📧 Email: ${userDto.email}")
-                println("👤 Role: ${userDto.role}")
+                println(" Login exitoso para: ${userDto.fullName}")
+                println(" ID del usuario: ${userDto.id}")
+                println(" Email: ${userDto.email}")
+                println(" Role: ${userDto.role}")
 
                 val user = User(
                     id = userDto.id,
@@ -51,10 +51,10 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
                     createdAt = userDto.createdAt
                 )
 
-                println("📦 User object creado con ID: ${user.id}")
+                println(" User object creado con ID: ${user.id}")
                 user
             } catch (e: Exception) {
-                println("💥 Error en login: ${e.message}")
+                println(" Error en login: ${e.message}")
                 e.printStackTrace()
                 null
             }
@@ -71,7 +71,7 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
     ): User? =
         withContext(Dispatchers.IO) {
             try {
-                println("🔍 Intentando registrar usuario con email: $email como ${role.name}")
+                println(" Intentando registrar usuario con email: $email como ${role.name}")
 
                 // Verificar si el email ya existe
                 val existingUsers = supabase
@@ -82,7 +82,7 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
                     .decodeList<UserDetailDto>()
 
                 if (existingUsers.isNotEmpty()) {
-                    println("⚠️ El email ya está registrado")
+                    println(" El email ya está registrado")
                     return@withContext null
                 }
 
@@ -106,7 +106,7 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
                     }
                     .decodeSingle<UserDetailDto>()
 
-                println("✅ Usuario registrado exitosamente: ${insertedUser.fullName} como ${insertedUser.role}")
+                println(" Usuario registrado exitosamente: ${insertedUser.fullName} como ${insertedUser.role}")
 
                 User(
                     id = insertedUser.id,
@@ -120,7 +120,7 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
                     createdAt = insertedUser.createdAt
                 )
             } catch (e: Exception) {
-                println("💥 Error en registro: ${e.message}")
+                println(" Error en registro: ${e.message}")
                 e.printStackTrace()
                 null
             }

@@ -13,4 +13,8 @@ interface ServiceRequestRepository {
     suspend fun insert(serviceRequest: ServiceRequest)
 
     suspend fun delete(serviceRequest: ServiceRequest)
+
+    suspend fun updateServiceRequestStatus(id: Long, status: String): Result<ServiceRequest>
+
+    suspend fun deleteServiceRequest(id: Long): Result<Boolean>
 }

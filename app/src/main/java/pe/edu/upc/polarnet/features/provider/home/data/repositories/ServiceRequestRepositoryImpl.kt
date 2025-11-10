@@ -241,4 +241,114 @@ class ServiceRequestRepositoryImpl @Inject constructor(
             )
         )
     }
+
+    override suspend fun updateServiceRequestStatus(id: Long, status: String): Result<ServiceRequest> =
+        withContext(Dispatchers.IO) {
+            try {
+                Log.d("ServiceRequestRepo", "====================================")
+                Log.d("ServiceRequestRepo", "ACTUALIZANDO ESTADO DE SOLICITUD")
+                Log.d("ServiceRequestRepo", "====================================")
+                Log.d("ServiceRequestRepo", "ID: $id")
+                Log.d("ServiceRequestRepo", "Nuevo estado: $status")
+
+                val statusUpdate = com.google.gson.JsonObject().apply {
+                    addProperty("status", status)
+                }
+
+                val response = service.updateServiceRequestStatus(
+                    idQuery = "eq.$id",
+                    statusUpdate = statusUpdate
+                )
+
+                if (response.isSuccessful) {
+                    val dtoList = response.body()
+                    if (!dtoList.isNullOrEmpty()) {
+                        val dto = dtoList[0]
+                        Log.d("ServiceRequestRepo", "Estado actualizado exitosamente")
+
+                        val updatedRequest = ServiceRequest(
+                            id = dto.id,
+                            clientId = dto.clientId,
+                            equipmentId = dto.equipmentId,
+                            requestType = dto.requestType,
+                            description = dto.description,
+                            startDate = dto.startDate,
+                            endDate = dto.endDate,
+                            status = dto.status,
+                            totalPrice = dto.totalPrice,
+                            notes = dto.notes,
+                            createdAt = dto.createdAt,
+                            equipment = dto.equipment?.let {
+                                Equipment(
+                                    id = it.id,
+                                    providerId = it.providerId,
+                                    name = it.name,
+                                    brand = it.brand,
+                                    model = it.model,
+                                    category = it.category,
+                                    description = it.description,
+                                    thumbnail = it.thumbnail,
+                                    specifications = it.specifications,
+                                    available = it.available,
+                                    location = it.location,
+                                    pricePerMonth = it.pricePerMonth,
+                                    purchasePrice = it.purchasePrice,
+                                    createdAt = it.createdAt,
+                                    updatedAt = it.updatedAt
+                                )
+                            },
+                            client = dto.client?.let {
+                                User(
+                                    id = it.id,
+                                    fullName = it.fullName,
+                                    email = it.email,
+                                    password = "",
+                                    role = UserRole.fromString(it.role),
+                                    companyName = it.companyName,
+                                    phone = it.phone,
+                                    location = it.location,
+                                    createdAt = it.createdAt
+                                )
+                            }
+                        )
+
+                        return@withContext Result.success(updatedRequest)
+                    } else {
+                        Log.e("ServiceRequestRepo", "Respuesta vacía")
+                        return@withContext Result.failure(Exception("Error: Respuesta vacía del servidor"))
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("ServiceRequestRepo", "Error ${response.code()}: $errorBody")
+                    return@withContext Result.failure(Exception("Error al actualizar: ${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Log.e("ServiceRequestRepo", "Excepción: ${e.message}", e)
+                return@withContext Result.failure(e)
+            }
+        }
+
+    override suspend fun deleteServiceRequest(id: Long): Result<Boolean> =
+        withContext(Dispatchers.IO) {
+            try {
+                Log.d("ServiceRequestRepo", "====================================")
+                Log.d("ServiceRequestRepo", "ELIMINANDO SOLICITUD")
+                Log.d("ServiceRequestRepo", "====================================")
+                Log.d("ServiceRequestRepo", "ID: $id")
+
+                val response = service.deleteServiceRequest(idQuery = "eq.$id")
+
+                if (response.isSuccessful) {
+                    Log.d("ServiceRequestRepo", "Solicitud eliminada exitosamente")
+                    return@withContext Result.success(true)
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("ServiceRequestRepo", "Error ${response.code()}: $errorBody")
+                    return@withContext Result.failure(Exception("Error al eliminar: ${response.code()}"))
+                }
+            } catch (e: Exception) {
+                Log.e("ServiceRequestRepo", "Excepción: ${e.message}", e)
+                return@withContext Result.failure(e)
+            }
+        }
 }

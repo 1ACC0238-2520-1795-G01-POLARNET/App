@@ -78,4 +78,68 @@ class ProviderHomeViewModel @Inject constructor(
             _serviceRequests.value.filter { it.status == _selectedFilter.value }
         }
     }
+
+    // Aceptar solicitud (cambiar a "completed")
+    fun acceptServiceRequest(id: Long, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            android.util.Log.d("ProviderHomeVM", "Aceptando solicitud ID: $id")
+
+            try {
+                val result = repository.updateServiceRequestStatus(id, "completed")
+
+                result.onSuccess {
+                    android.util.Log.d("ProviderHomeVM", "Solicitud aceptada exitosamente")
+                    android.util.Log.d("ProviderHomeVM", "Recargando lista de solicitudes...")
+                    // Recargar lista y esperar a que termine antes de navegar
+                    loadServiceRequests()
+                    // Dar tiempo para que la UI se actualice
+                    kotlinx.coroutines.delay(500)
+                    onSuccess()
+                }.onFailure { exception ->
+                    android.util.Log.e("ProviderHomeVM", "Error al aceptar: ${exception.message}")
+                    _errorMessage.value = exception.message
+                    onError(exception.message ?: "Error desconocido")
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("ProviderHomeVM", "Excepción: ${e.message}", e)
+                _errorMessage.value = e.message
+                onError(e.message ?: "Error desconocido")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Rechazar solicitud (eliminar)
+    fun rejectServiceRequest(id: Long, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            android.util.Log.d("ProviderHomeVM", "Rechazando solicitud ID: $id")
+
+            try {
+                val result = repository.deleteServiceRequest(id)
+
+                result.onSuccess {
+                    android.util.Log.d("ProviderHomeVM", "Solicitud rechazada/eliminada exitosamente")
+                    android.util.Log.d("ProviderHomeVM", "Recargando lista de solicitudes...")
+                    // Recargar lista y esperar a que termine antes de navegar
+                    loadServiceRequests()
+                    // Dar tiempo para que la UI se actualice
+                    kotlinx.coroutines.delay(500)
+                    onSuccess()
+                }.onFailure { exception ->
+                    android.util.Log.e("ProviderHomeVM", "Error al rechazar: ${exception.message}")
+                    _errorMessage.value = exception.message
+                    onError(exception.message ?: "Error desconocido")
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("ProviderHomeVM", "Excepción: ${e.message}", e)
+                _errorMessage.value = e.message
+                onError(e.message ?: "Error desconocido")
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
 }

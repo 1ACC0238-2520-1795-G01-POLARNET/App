@@ -1,9 +1,9 @@
 package pe.edu.upc.polarnet.features.provider.home.data.remote.services
 
+import com.google.gson.JsonObject
 import pe.edu.upc.polarnet.features.provider.home.data.remote.models.ServiceRequestDto
 import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface ServiceRequestService {
 
@@ -25,4 +25,18 @@ interface ServiceRequestService {
         @Query("id") id: String,
         @Query("select") select: String = "*,equipment(*),client:users!client_id(*)"
     ): Response<List<ServiceRequestDto>>
+
+    // Actualizar estado de solicitud
+    @PATCH("service_requests")
+    suspend fun updateServiceRequestStatus(
+        @Query("id") idQuery: String,
+        @Body statusUpdate: JsonObject,
+        @Header("Prefer") prefer: String = "return=representation"
+    ): Response<List<ServiceRequestDto>>
+
+    // Eliminar solicitud
+    @DELETE("service_requests")
+    suspend fun deleteServiceRequest(
+        @Query("id") idQuery: String
+    ): Response<Unit>
 }

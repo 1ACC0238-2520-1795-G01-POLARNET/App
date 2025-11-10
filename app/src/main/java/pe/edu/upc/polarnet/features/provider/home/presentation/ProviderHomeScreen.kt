@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,6 +31,12 @@ fun ProviderHomeScreen(
     val errorMessage = viewModel.errorMessage.collectAsState().value
     val selectedFilter = viewModel.selectedFilter.collectAsState().value
     val colors = MaterialTheme.polarNetColors
+
+    // Recargar solicitudes cada vez que la pantalla se muestra
+    LaunchedEffect(Unit) {
+        android.util.Log.d("ProviderHomeScreen", "Pantalla visible - Recargando solicitudes...")
+        viewModel.loadServiceRequests()
+    }
 
     Column(
         modifier = Modifier

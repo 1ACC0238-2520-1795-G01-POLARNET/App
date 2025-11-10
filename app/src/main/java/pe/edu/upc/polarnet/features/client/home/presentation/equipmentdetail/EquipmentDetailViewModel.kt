@@ -50,12 +50,12 @@ class EquipmentDetailViewModel @Inject constructor(
                 _rentalSuccess.value = false
 
                 Log.d("EquipmentDetailVM", "====================================")
-                Log.d("EquipmentDetailVM", "🔥 CREANDO SOLICITUD DE RENTA")
+                Log.d("EquipmentDetailVM", "CREANDO SOLICITUD DE RENTA")
                 Log.d("EquipmentDetailVM", "====================================")
-                Log.d("EquipmentDetailVM", "📋 Cliente ID: $clientId")
-                Log.d("EquipmentDetailVM", "📦 Equipo ID: $equipmentId")
-                Log.d("EquipmentDetailVM", "📅 Meses: $rentalMonths")
-                Log.d("EquipmentDetailVM", "💰 Precio/mes: $pricePerMonth")
+                Log.d("EquipmentDetailVM", "Cliente ID: $clientId")
+                Log.d("EquipmentDetailVM", "Equipo ID: $equipmentId")
+                Log.d("EquipmentDetailVM", "Meses: $rentalMonths")
+                Log.d("EquipmentDetailVM", "Precio/mes: $pricePerMonth")
 
                 // Usar SimpleDateFormat compatible con API 24
                 val formatter = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault())
@@ -86,14 +86,14 @@ class EquipmentDetailViewModel @Inject constructor(
                 val result = rentalRepository.createRentalRequest(serviceRequest)
 
                 result.onSuccess { createdRequest ->
-                    Log.d("EquipmentDetailVM", "✅ Solicitud creada exitosamente: ID ${createdRequest.id}")
+                    Log.d("EquipmentDetailVM", "Solicitud creada exitosamente: ID ${createdRequest.id}")
                     _rentalSuccess.value = true
                 }.onFailure { exception ->
-                    Log.e("EquipmentDetailVM", "❌ Error al crear solicitud: ${exception.message}")
-                    _errorMessage.value = exception.message ?: "Error desconocido"
+                    Log.e("EquipmentDetailVM", "Error al crear solicitud: ${exception.message}")
+                    _errorMessage.value = exception.message
                 }
             } catch (e: Exception) {
-                Log.e("EquipmentDetailVM", "❌ Excepción: ${e.message}", e)
+                Log.e("EquipmentDetailVM", "Excepción: ${e.message}", e)
                 _errorMessage.value = e.message ?: "Error al crear solicitud"
             } finally {
                 _isLoading.value = false

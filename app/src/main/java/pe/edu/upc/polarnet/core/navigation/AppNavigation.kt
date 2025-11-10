@@ -135,10 +135,45 @@ fun AppNavigation() {
             )
         ) { navBackStackEntry ->
             val serviceRequestId = navBackStackEntry.arguments?.getLong(Route.ServiceRequestDetail.argument)
+            val providerHomeViewModel: pe.edu.upc.polarnet.features.provider.home.presentation.home.ProviderHomeViewModel = hiltViewModel()
 
-            serviceRequestId?.let {
-                // TODO: Crear ServiceRequestDetailScreen cuando lo necesites
-                // ServiceRequestDetailScreen(serviceRequestId = it)
+            serviceRequestId?.let { id ->
+                val serviceRequest = providerHomeViewModel.serviceRequests.collectAsState().value
+                    .find { it.id == id }
+
+                serviceRequest?.let { request ->
+                    val isLoading = providerHomeViewModel.isLoading.collectAsState().value
+
+                    pe.edu.upc.polarnet.features.provider.home.presentation.ServiceRequestDetailScreen(
+                        serviceRequest = request,
+                        onNavigateBack = { navController.popBackStack() },
+                        onAccept = { requestId ->
+                            providerHomeViewModel.acceptServiceRequest(
+                                id = requestId,
+                                onSuccess = {
+                                    android.util.Log.d("AppNavigation", "Solicitud aceptada, navegando atrás")
+                                    navController.popBackStack()
+                                },
+                                onError = { error ->
+                                    android.util.Log.e("AppNavigation", "Error: $error")
+                                }
+                            )
+                        },
+                        onReject = { requestId ->
+                            providerHomeViewModel.rejectServiceRequest(
+                                id = requestId,
+                                onSuccess = {
+                                    android.util.Log.d("AppNavigation", "Solicitud rechazada, navegando atrás")
+                                    navController.popBackStack()
+                                },
+                                onError = { error ->
+                                    android.util.Log.e("AppNavigation", "Error: $error")
+                                }
+                            )
+                        },
+                        isLoading = isLoading
+                    )
+                }
             }
         }
     }

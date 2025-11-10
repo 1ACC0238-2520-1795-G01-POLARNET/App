@@ -17,7 +17,7 @@ class ClientEquipmentRepositoryImpl @Inject constructor(
     private val dao: ClientEquipmentDao
 ) : ClientEquipmentRepository {
 
-    // 🔹 Obtener todos los equipos de un cliente
+    //  Obtener todos los equipos de un cliente
     override suspend fun getClientEquipments(clientId: Long): List<ClientEquipment> = withContext(Dispatchers.IO) {
         try {
             val response = service.getClientEquipmentsByClientId("eq.$clientId")
@@ -132,7 +132,7 @@ class ClientEquipmentRepositoryImpl @Inject constructor(
 }
 
 /**
- * 🔁 Mapper de DTO a Dominio
+ *  Mapper de DTO a Dominio
  */
 private fun ClientEquipmentDto.toDomain(): ClientEquipment = ClientEquipment(
     id = id,

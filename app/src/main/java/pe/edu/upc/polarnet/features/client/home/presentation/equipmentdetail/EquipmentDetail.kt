@@ -38,14 +38,14 @@ fun EquipmentDetail(
     // Mostrar mensaje de éxito
     LaunchedEffect(rentalSuccess) {
         if (rentalSuccess) {
-            android.util.Log.d("EquipmentDetail", "✅ Renta creada exitosamente")
+            android.util.Log.d("EquipmentDetail", "Renta creada exitosamente")
         }
     }
 
     // Mostrar error si existe
     LaunchedEffect(errorMessage) {
         errorMessage?.let {
-            android.util.Log.e("EquipmentDetail", "❌ Error: $it")
+            android.util.Log.e("EquipmentDetail", "Error: $it")
         }
     }
 
@@ -77,11 +77,11 @@ fun EquipmentDetail(
                     onRentalMonthsChange = { rentalMonths = it },
                     onConfirm = {
                         android.util.Log.d("EquipmentDetail", "====================================")
-                        android.util.Log.d("EquipmentDetail", "🎯 CONFIRMANDO RENTA")
+                        android.util.Log.d("EquipmentDetail", "CONFIRMANDO RENTA")
                         android.util.Log.d("EquipmentDetail", "====================================")
-                        android.util.Log.d("EquipmentDetail", "🔑 ClientId recibido: $clientId")
-                        android.util.Log.d("EquipmentDetail", "📦 EquipmentId: ${equip.id}")
-                        android.util.Log.d("EquipmentDetail", "📋 Equipo: ${equip.name}")
+                        android.util.Log.d("EquipmentDetail", "ClientId recibido: $clientId")
+                        android.util.Log.d("EquipmentDetail", "EquipmentId: ${equip.id}")
+                        android.util.Log.d("EquipmentDetail", "Equipo: ${equip.name}")
 
                         viewModel.createRentalRequest(
                             clientId = clientId,

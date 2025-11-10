@@ -16,14 +16,14 @@ class RentalRepositoryImpl @Inject constructor(
     override suspend fun createRentalRequest(serviceRequest: ServiceRequest): Result<ServiceRequest> = withContext(Dispatchers.IO) {
         try {
             Log.d("RentalRepo", "====================================")
-            Log.d("RentalRepo", "📤 ENVIANDO SOLICITUD A SUPABASE")
+            Log.d("RentalRepo", "ENVIANDO SOLICITUD A SUPABASE")
             Log.d("RentalRepo", "====================================")
-            Log.d("RentalRepo", "🔑 client_id: ${serviceRequest.clientId}")
-            Log.d("RentalRepo", "🔑 equipment_id: ${serviceRequest.equipmentId}")
-            Log.d("RentalRepo", "📝 request_type: ${serviceRequest.requestType}")
-            Log.d("RentalRepo", "💰 total_price: ${serviceRequest.totalPrice}")
-            Log.d("RentalRepo", "📅 start_date: ${serviceRequest.startDate}")
-            Log.d("RentalRepo", "📅 end_date: ${serviceRequest.endDate}")
+            Log.d("RentalRepo", "client_id: ${serviceRequest.clientId}")
+            Log.d("RentalRepo", "equipment_id: ${serviceRequest.equipmentId}")
+            Log.d("RentalRepo", "request_type: ${serviceRequest.requestType}")
+            Log.d("RentalRepo", "total_price: ${serviceRequest.totalPrice}")
+            Log.d("RentalRepo", "start_date: ${serviceRequest.startDate}")
+            Log.d("RentalRepo", "end_date: ${serviceRequest.endDate}")
 
             val requestDto = CreateServiceRequestDto(
                 clientId = serviceRequest.clientId,
@@ -36,7 +36,7 @@ class RentalRepositoryImpl @Inject constructor(
                 notes = serviceRequest.notes
             )
 
-            Log.d("RentalRepo", "📦 DTO creado con client_id: ${requestDto.clientId}")
+            Log.d("RentalRepo", "DTO creado con client_id: ${requestDto.clientId}")
 
             val response = service.createRentalRequest(requestDto)
 
