@@ -104,10 +104,20 @@ fun AppNavigation() {
         ) { navBackStackEntry ->
             val equipmentId = navBackStackEntry.arguments?.getLong(Route.EquipmentDetail.argument)
             val equipmentDetailViewModel: EquipmentDetailViewModel = hiltViewModel()
+            val clientId = loggedUser?.id ?: 0L
+
+            android.util.Log.d("AppNavigation", "=== DETALLE DE EQUIPO ===")
+            android.util.Log.d("AppNavigation", "Usuario logueado: ${loggedUser?.fullName} (ID: ${loggedUser?.id})")
+            android.util.Log.d("AppNavigation", "Email: ${loggedUser?.email}")
+            android.util.Log.d("AppNavigation", "ClientId que se pasará: $clientId")
 
             equipmentId?.let {
                 equipmentDetailViewModel.getEquipmentById(it)
-                EquipmentDetail(equipmentDetailViewModel)
+                EquipmentDetail(
+                    viewModel = equipmentDetailViewModel,
+                    onNavigateBack = { navController.popBackStack() },
+                    clientId = clientId
+                )
             }
         }
 

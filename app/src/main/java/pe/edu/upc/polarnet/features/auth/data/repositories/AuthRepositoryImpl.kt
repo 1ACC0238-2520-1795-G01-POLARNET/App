@@ -35,8 +35,11 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
                 if (userDto.password != password) return@withContext null
 
                 println("✅ Login exitoso para: ${userDto.fullName}")
+                println("🔑 ID del usuario: ${userDto.id}")
+                println("📧 Email: ${userDto.email}")
+                println("👤 Role: ${userDto.role}")
 
-                User(
+                val user = User(
                     id = userDto.id,
                     fullName = userDto.fullName,
                     email = userDto.email,
@@ -47,6 +50,9 @@ class AuthRepositoryImpl @Inject constructor( // 👈 AÑADE ESTO
                     location = userDto.location,
                     createdAt = userDto.createdAt
                 )
+
+                println("📦 User object creado con ID: ${user.id}")
+                user
             } catch (e: Exception) {
                 println("💥 Error en login: ${e.message}")
                 e.printStackTrace()

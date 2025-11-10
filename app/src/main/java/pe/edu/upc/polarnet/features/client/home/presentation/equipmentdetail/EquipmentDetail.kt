@@ -12,7 +12,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -24,30 +23,79 @@ import pe.edu.upc.polarnet.core.ui.theme.polarNetColors
 @Composable
 fun EquipmentDetail(
     viewModel: EquipmentDetailViewModel = hiltViewModel(),
-    onNavigateBack: () -> Unit = {}
+    onNavigateBack: () -> Unit = {},
+    clientId: Long
 ) {
-    val equipment = viewModel.equipment.collectAsState()
-    var quantity by remember { mutableIntStateOf(1) }
+    val equipment by viewModel.equipment.collectAsState()
+    var rentalMonths by remember { mutableIntStateOf(1) }
+    var showRentalDialog by remember { mutableStateOf(false) }
     val colors = MaterialTheme.polarNetColors
 
-    equipment.value?.let { equipment ->
+    val isLoading by viewModel.isLoading.collectAsState()
+    val rentalSuccess by viewModel.rentalSuccess.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+
+    // Mostrar mensaje de éxito
+    LaunchedEffect(rentalSuccess) {
+        if (rentalSuccess) {
+            android.util.Log.d("EquipmentDetail", "✅ Renta creada exitosamente")
+        }
+    }
+
+    // Mostrar error si existe
+    LaunchedEffect(errorMessage) {
+        errorMessage?.let {
+            android.util.Log.e("EquipmentDetail", "❌ Error: $it")
+        }
+    }
+
+    equipment?.let { equip ->
         Scaffold(
             floatingActionButton = {
                 ExtendedFloatingActionButton(
-                    onClick = { /* Agregar al carrito */ },
+                    onClick = { showRentalDialog = true },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 ) {
-                    Icon(Icons.Default.ShoppingCart, contentDescription = null)
+                    Icon(Icons.Default.CalendarMonth, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Agregar al Carrito",
+                        text = "Rentar Equipo",
                         fontWeight = FontWeight.SemiBold
                     )
                 }
             },
             floatingActionButtonPosition = FabPosition.Center
         ) { paddingValues ->
+
+            // Diálogo de confirmación de renta
+            if (showRentalDialog) {
+                RentalDialog(
+                    equipmentName = equip.name,
+                    pricePerMonth = equip.pricePerMonth,
+                    rentalMonths = rentalMonths,
+                    onRentalMonthsChange = { rentalMonths = it },
+                    onConfirm = {
+                        android.util.Log.d("EquipmentDetail", "====================================")
+                        android.util.Log.d("EquipmentDetail", "🎯 CONFIRMANDO RENTA")
+                        android.util.Log.d("EquipmentDetail", "====================================")
+                        android.util.Log.d("EquipmentDetail", "🔑 ClientId recibido: $clientId")
+                        android.util.Log.d("EquipmentDetail", "📦 EquipmentId: ${equip.id}")
+                        android.util.Log.d("EquipmentDetail", "📋 Equipo: ${equip.name}")
+
+                        viewModel.createRentalRequest(
+                            clientId = clientId,
+                            equipmentId = equip.id,
+                            rentalMonths = rentalMonths,
+                            pricePerMonth = equip.pricePerMonth
+                        )
+                        showRentalDialog = false
+                    },
+                    onDismiss = { showRentalDialog = false },
+                    isLoading = isLoading
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -62,8 +110,8 @@ fun EquipmentDetail(
                         .height(300.dp)
                 ) {
                     AsyncImage(
-                        model = equipment.thumbnail,
-                        contentDescription = equipment.name,
+                        model = equip.thumbnail,
+                        contentDescription = equip.name,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
@@ -118,7 +166,7 @@ fun EquipmentDetail(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = equipment.name,
+                                text = equip.name,
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground
@@ -153,12 +201,12 @@ fun EquipmentDetail(
                                 horizontalAlignment = Alignment.End
                             ) {
                                 Text(
-                                    text = "Precio",
+                                    text = "Precio/mes",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
                                 )
                                 Text(
-                                    text = "S/ %.2f".format(equipment.purchasePrice),
+                                    text = "S/ %.2f".format(equip.pricePerMonth),
                                     style = MaterialTheme.typography.titleLarge,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -169,7 +217,7 @@ fun EquipmentDetail(
 
                     HorizontalDivider()
 
-                    // Sección de cantidad
+                    // Sección de meses de renta
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
@@ -184,12 +232,19 @@ fun EquipmentDetail(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "Cantidad",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            Column {
+                                Text(
+                                    text = "Duración de Renta",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "S/ ${String.format(java.util.Locale.getDefault(), "%.2f", equip.pricePerMonth)}/mes",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
 
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -197,7 +252,7 @@ fun EquipmentDetail(
                             ) {
                                 // Botón decrementar
                                 FilledIconButton(
-                                    onClick = { if (quantity > 1) quantity-- },
+                                    onClick = { if (rentalMonths > 1) rentalMonths-- },
                                     modifier = Modifier.size(40.dp),
                                     colors = IconButtonDefaults.filledIconButtonColors(
                                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -211,25 +266,33 @@ fun EquipmentDetail(
                                     )
                                 }
 
-                                // Cantidad
+                                // Meses
                                 Surface(
                                     shape = RoundedCornerShape(8.dp),
                                     color = MaterialTheme.colorScheme.surface,
-                                    modifier = Modifier.width(60.dp)
+                                    modifier = Modifier.width(80.dp)
                                 ) {
-                                    Text(
-                                        text = quantity.toString(),
-                                        style = MaterialTheme.typography.titleLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        modifier = Modifier.padding(vertical = 8.dp),
-                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                                    )
+                                    Column(
+                                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = rentalMonths.toString(),
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = if (rentalMonths == 1) "mes" else "meses",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
 
                                 // Botón incrementar
                                 FilledIconButton(
-                                    onClick = { quantity++ },
+                                    onClick = { rentalMonths++ },
                                     modifier = Modifier.size(40.dp),
                                     colors = IconButtonDefaults.filledIconButtonColors(
                                         containerColor = MaterialTheme.colorScheme.primary,
@@ -270,30 +333,30 @@ fun EquipmentDetail(
                             DetailRow(
                                 icon = Icons.Default.Category,
                                 label = "Categoría",
-                                value = "Refrigeración Industrial"
+                                value = equip.category
                             )
 
                             DetailRow(
                                 icon = Icons.Default.Inventory,
                                 label = "Stock",
-                                value = "Disponible"
+                                value = if (equip.available) "Disponible" else "No disponible"
                             )
 
                             DetailRow(
                                 icon = Icons.Default.LocalShipping,
-                                label = "Entrega",
-                                value = "2-3 días hábiles"
+                                label = "Ubicación",
+                                value = equip.location ?: "Lima, Perú"
                             )
 
                             DetailRow(
                                 icon = Icons.Default.Verified,
-                                label = "Garantía",
-                                value = "12 meses"
+                                label = "Marca",
+                                value = equip.brand ?: "N/A"
                             )
                         }
                     }
 
-                    // Resumen de compra
+                    // Resumen de renta
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
@@ -308,7 +371,7 @@ fun EquipmentDetail(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             Text(
-                                text = "Resumen",
+                                text = "Resumen de Renta",
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -319,12 +382,29 @@ fun EquipmentDetail(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
-                                    text = "Subtotal ($quantity unidades)",
+                                    text = "Precio por mes",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer
                                 )
                                 Text(
-                                    text = "S/ %.2f".format(equipment.purchasePrice * quantity),
+                                    text = "S/ %.2f".format(equip.pricePerMonth),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Duración",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                                Text(
+                                    text = "$rentalMonths ${if (rentalMonths == 1) "mes" else "meses"}",
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Medium,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -340,14 +420,21 @@ fun EquipmentDetail(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.Bottom
                             ) {
+                                Column {
+                                    Text(
+                                        text = "Total a Pagar",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                                    )
+                                    Text(
+                                        text = "Por $rentalMonths ${if (rentalMonths == 1) "mes" else "meses"}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
+                                    )
+                                }
                                 Text(
-                                    text = "Total",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onTertiaryContainer
-                                )
-                                Text(
-                                    text = "S/ %.2f".format(equipment.purchasePrice * quantity),
+                                    text = "S/ %.2f".format(equip.pricePerMonth * rentalMonths),
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -396,3 +483,171 @@ private fun DetailRow(
         }
     }
 }
+
+@Composable
+private fun RentalDialog(
+    equipmentName: String,
+    pricePerMonth: Double,
+    rentalMonths: Int,
+    onRentalMonthsChange: (Int) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    isLoading: Boolean
+) {
+    AlertDialog(
+        onDismissRequest = { if (!isLoading) onDismiss() },
+        icon = {
+            Icon(
+                Icons.Default.CalendarMonth,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
+            )
+        },
+        title = {
+            Text(
+                text = "Confirmar Renta",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = equipmentName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+
+                HorizontalDivider()
+
+                // Selector de meses
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Duración:",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        IconButton(
+                            onClick = { if (rentalMonths > 1) onRentalMonthsChange(rentalMonths - 1) },
+                            enabled = !isLoading && rentalMonths > 1
+                        ) {
+                            Icon(Icons.Default.Remove, contentDescription = "Disminuir")
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            modifier = Modifier.widthIn(min = 60.dp)
+                        ) {
+                            Text(
+                                text = "$rentalMonths ${if (rentalMonths == 1) "mes" else "meses"}",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { onRentalMonthsChange(rentalMonths + 1) },
+                            enabled = !isLoading
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Aumentar")
+                        }
+                    }
+                }
+
+                // Resumen
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Precio/mes:",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Text(
+                                text = "S/ %.2f".format(pricePerMonth),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.3f)
+                        )
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Text(
+                                text = "Total:",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Text(
+                                text = "S/ %.2f".format(pricePerMonth * rentalMonths),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = !isLoading
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text(if (isLoading) "Procesando..." else "Confirmar Renta")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isLoading
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+

@@ -59,6 +59,8 @@ class LoginViewModel @Inject constructor(    // 👈 Usa @Inject aquí
                 if (result != null) {
                     println("✅ Usuario autenticado: ${result.fullName} (id=${result.id})")
                     _loggedUser.value = result
+                    println("📦 _loggedUser.value guardado: ${_loggedUser.value?.id}")
+                    android.util.Log.d("LoginViewModel", "🎯 Usuario guardado con ID: ${_loggedUser.value?.id}")
                 } else {
                     println("❌ Login falló - credenciales incorrectas")
                     _errorMessage.value = "Correo o contraseña incorrectos"
