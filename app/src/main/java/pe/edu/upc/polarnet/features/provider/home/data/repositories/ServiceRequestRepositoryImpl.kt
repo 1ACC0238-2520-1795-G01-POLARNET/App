@@ -312,6 +312,34 @@ class ServiceRequestRepositoryImpl @Inject constructor(
                             }
                         )
 
+                        // Si el estado es "completed", crear registro en client_equipment
+                        if (status == "completed") {
+                            Log.d("ServiceRequestRepo", "====================================")
+                            Log.d("ServiceRequestRepo", "CREANDO REGISTRO EN CLIENT_EQUIPMENT")
+                            Log.d("ServiceRequestRepo", "====================================")
+
+                            val clientEquipmentData = com.google.gson.JsonObject().apply {
+                                addProperty("client_id", dto.clientId)
+                                addProperty("equipment_id", dto.equipmentId)
+                                addProperty("ownership_type", "rented")
+                                addProperty("start_date", dto.startDate)
+                                addProperty("end_date", dto.endDate)
+                                addProperty("status", "active")
+                                addProperty("notes", "Equipo rentado - Solicitud #${dto.id}")
+                            }
+
+                            try {
+                                val clientEquipmentResponse = service.createClientEquipment(clientEquipmentData)
+                                if (clientEquipmentResponse.isSuccessful) {
+                                    Log.d("ServiceRequestRepo", "Client_equipment creado exitosamente")
+                                } else {
+                                    Log.e("ServiceRequestRepo", "Error al crear client_equipment: ${clientEquipmentResponse.code()}")
+                                }
+                            } catch (e: Exception) {
+                                Log.e("ServiceRequestRepo", "Excepción al crear client_equipment: ${e.message}")
+                            }
+                        }
+
                         return@withContext Result.success(updatedRequest)
                     } else {
                         Log.e("ServiceRequestRepo", "Respuesta vacía")

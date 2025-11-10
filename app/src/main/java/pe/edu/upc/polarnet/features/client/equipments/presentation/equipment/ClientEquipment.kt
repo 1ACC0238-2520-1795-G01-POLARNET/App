@@ -27,7 +27,9 @@ fun ClientEquipmentsScreen(
     val equipments by viewModel.clientEquipments.collectAsState()
     val colors = MaterialTheme.polarNetColors
 
-    LaunchedEffect(clientId) {
+    // Recargar equipos cada vez que la pantalla se muestra
+    LaunchedEffect(Unit) {
+        android.util.Log.d("ClientEquipments", "Pantalla visible - Recargando equipos del cliente: $clientId")
         viewModel.loadClientEquipments(clientId)
     }
 

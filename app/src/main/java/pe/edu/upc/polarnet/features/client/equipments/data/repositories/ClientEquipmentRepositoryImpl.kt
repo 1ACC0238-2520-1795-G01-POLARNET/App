@@ -20,6 +20,12 @@ class ClientEquipmentRepositoryImpl @Inject constructor(
     //  Obtener todos los equipos de un cliente
     override suspend fun getClientEquipments(clientId: Long): List<ClientEquipment> = withContext(Dispatchers.IO) {
         try {
+            Log.d("ClientEquipmentRepo", "====================================")
+            Log.d("ClientEquipmentRepo", "OBTENIENDO EQUIPOS DEL CLIENTE")
+            Log.d("ClientEquipmentRepo", "====================================")
+            Log.d("ClientEquipmentRepo", "ClientId: $clientId")
+            Log.d("ClientEquipmentRepo", "Query: eq.$clientId")
+
             val response = service.getClientEquipmentsByClientId("eq.$clientId")
 
             if (response.isSuccessful) {
@@ -28,6 +34,9 @@ class ClientEquipmentRepositoryImpl @Inject constructor(
                 } ?: emptyList()
 
                 Log.d("ClientEquipmentRepo", "Equipos cliente obtenidos: ${clientEquipments.size}")
+                clientEquipments.forEachIndexed { index, ce ->
+                    Log.d("ClientEquipmentRepo", "[$index] Equipo ID: ${ce.equipmentId}, Status: ${ce.status}, Tipo: ${ce.ownershipType}")
+                }
 
                 // Guardar localmente
                 clientEquipments.forEach { ce ->

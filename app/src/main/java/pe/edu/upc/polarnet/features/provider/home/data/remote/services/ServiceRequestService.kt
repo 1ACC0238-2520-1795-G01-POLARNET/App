@@ -39,4 +39,11 @@ interface ServiceRequestService {
     suspend fun deleteServiceRequest(
         @Query("id") idQuery: String
     ): Response<Unit>
+
+    // Crear registro en client_equipment
+    @POST("client_equipment")
+    suspend fun createClientEquipment(
+        @Body clientEquipment: JsonObject,
+        @Header("Prefer") prefer: String = "return=representation"
+    ): Response<List<JsonObject>>
 }
