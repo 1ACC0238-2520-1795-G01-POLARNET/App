@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "278563301919",
+    "project_id": "polarnet-367e1",
+    "storage_bucket": "polarnet-367e1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:278563301919:android:82a074a9a8c0a45c41832a",
+        "android_client_info": {
+          "package_name": "pe.edu.upc.polarnet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBXJ954DXNlud-xjk3XnzOgXacqAyfZ8qI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

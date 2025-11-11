@@ -6,6 +6,9 @@ plugins {
     alias(libs.plugins.ksp) // KSP plugin
 
     kotlin("plugin.serialization") version "1.9.0"
+
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -44,6 +47,12 @@ android {
 }
 
 dependencies {
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
+
+    // Firebase Analytics
+    implementation("com.google.firebase:firebase-analytics")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
