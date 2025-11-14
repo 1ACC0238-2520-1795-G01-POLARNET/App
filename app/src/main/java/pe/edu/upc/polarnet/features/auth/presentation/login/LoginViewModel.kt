@@ -74,4 +74,12 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
+    fun logout() {
+        _loggedUser.value = null
+        _email.value = ""
+        _password.value = ""
+        _errorMessage.value = null
+        println("🔴 Usuario cerró sesión")
+    }
 }

@@ -77,6 +77,11 @@ fun AppNavigation() {
                 loginViewModel = loginViewModel,
                 onTapEquipmentCard = { equipmentId ->
                     navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }
@@ -91,6 +96,11 @@ fun AppNavigation() {
                 onTapServiceRequest = { serviceRequestId -> // 👈 Cambio aquí
                     // TODO: Navegar a detalle de solicitud cuando lo crees
                     navController.navigate("${Route.ServiceRequestDetail.route}/$serviceRequestId")
+                },
+                onLogout = {
+                    navController.navigate(Route.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 }
             )
         }

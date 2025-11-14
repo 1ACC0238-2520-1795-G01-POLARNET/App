@@ -29,7 +29,8 @@ fun MainProveedor(
     providerId: Long,
     loginViewModel: LoginViewModel,
     onTapServiceRequest: (Long) -> Unit,
-    onTapEquipment: (Long) -> Unit = {}
+    onTapEquipment: (Long) -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val loggedUser = loginViewModel.loggedUser.collectAsState().value
 
@@ -80,7 +81,10 @@ fun MainProveedor(
                     }
                 )
 
-                3 -> ProfileScreen(loginViewModel = loginViewModel)
+                3 -> ProfileScreen(
+                    loginViewModel = loginViewModel,
+                    onLogout = onLogout
+                )
             }
         }
     }

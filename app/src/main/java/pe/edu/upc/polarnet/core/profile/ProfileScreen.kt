@@ -21,7 +21,10 @@ import pe.edu.upc.polarnet.core.ui.theme.polarNetColors
 import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
 
 @Composable
-fun ProfileScreen(loginViewModel: LoginViewModel) {
+fun ProfileScreen(
+    loginViewModel: LoginViewModel,
+    onLogout: () -> Unit = {}
+) {
     val loggedUser = loginViewModel.loggedUser.collectAsState().value
     val colors = MaterialTheme.polarNetColors
 
@@ -220,7 +223,10 @@ fun ProfileScreen(loginViewModel: LoginViewModel) {
 
             // Botón de cerrar sesión
             Button(
-                onClick = { /* TODO: implementar logout */ },
+                onClick = {
+                    loginViewModel.logout()
+                    onLogout()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),

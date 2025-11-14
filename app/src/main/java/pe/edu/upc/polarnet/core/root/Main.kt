@@ -30,7 +30,8 @@ import pe.edu.upc.polarnet.features.client.services.presentation.serviceRequest.
 fun Main(
     clientId: Long,
     onTapEquipmentCard: (Long) -> Unit,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    onLogout: () -> Unit = {}
 ) {
     val navigationItems = listOf(
         NavigationItem(Icons.Default.Home, "Inicio"),
@@ -76,7 +77,10 @@ fun Main(
                     ServiceRequestScreen(clientId = clientId, viewModel = serviceViewModel)
                 }
 
-                3 -> ProfileScreen(loginViewModel = loginViewModel)
+                3 -> ProfileScreen(
+                    loginViewModel = loginViewModel,
+                    onLogout = onLogout
+                )
             }
         }
     }
