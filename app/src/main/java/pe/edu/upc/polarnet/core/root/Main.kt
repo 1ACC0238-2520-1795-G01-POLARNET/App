@@ -31,6 +31,7 @@ fun Main(
     clientId: Long,
     onTapEquipmentCard: (Long) -> Unit,
     loginViewModel: LoginViewModel,
+    onNavigateToNotifications: () -> Unit = {},
     onLogout: () -> Unit = {}
 ) {
     val navigationItems = listOf(
@@ -64,7 +65,8 @@ fun Main(
             when (selectedIndex.intValue) {
                 0 -> Home(
                     onTapEquipmentCard = onTapEquipmentCard,
-                    loginViewModel = loginViewModel
+                    loginViewModel = loginViewModel,
+                    onNavigateToNotifications = onNavigateToNotifications
                 )
 
                 1 -> ClientEquipmentsScreen(

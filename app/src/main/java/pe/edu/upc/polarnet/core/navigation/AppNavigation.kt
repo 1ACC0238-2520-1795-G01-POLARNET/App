@@ -1,8 +1,10 @@
 package pe.edu.upc.polarnet.core.navigation
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -18,6 +20,7 @@ import pe.edu.upc.polarnet.features.auth.presentation.register.Register
 import pe.edu.upc.polarnet.features.auth.presentation.register.RegisterViewModel
 import pe.edu.upc.polarnet.features.client.home.presentation.equipmentdetail.EquipmentDetail
 import pe.edu.upc.polarnet.features.client.home.presentation.equipmentdetail.EquipmentDetailViewModel
+import pe.edu.upc.polarnet.features.client.notifications.presentation.NotificationsScreen
 import pe.edu.upc.polarnet.features.client.services.presentation.serviceRequest.ServiceRequestScreen
 
 @Composable
@@ -78,6 +81,9 @@ fun AppNavigation() {
                 onTapEquipmentCard = { equipmentId ->
                     navController.navigate("${Route.EquipmentDetail.route}/$equipmentId")
                 },
+                onNavigateToNotifications = {
+                    navController.navigate(Route.Notifications.route)
+                },
                 onLogout = {
                     navController.navigate(Route.Login.route) {
                         popUpTo(0) { inclusive = true }
@@ -135,6 +141,15 @@ fun AppNavigation() {
         composable(Route.ServiceRequests.route) {
             val clientId = loggedUser?.id ?: 0L
             ServiceRequestScreen(clientId = clientId)
+        }
+
+        // 🔹 NOTIFICACIONES DEL CLIENTE
+        composable(Route.Notifications.route) {
+            val clientId = loggedUser?.id ?: 0L
+            NotificationsScreen(
+                userId = clientId,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
 
         // 🔹 DETALLE DE SOLICITUD DE SERVICIO (PROVEEDOR)

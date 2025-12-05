@@ -138,6 +138,72 @@ class ClientEquipmentRepositoryImpl @Inject constructor(
             )
         )
     }
+
+    // 🔹 Crear equipo del cliente en Supabase
+    override suspend fun createClientEquipment(
+        clientId: Long,
+        equipmentId: Long,
+        ownershipType: String,
+        startDate: String,
+        endDate: String?,
+        status: String,
+        notes: String?
+    ): Result<ClientEquipment> = withContext(Dispatchers.IO) {
+        try {
+            Log.d("ClientEquipmentRepo", "====================================")
+            Log.d("ClientEquipmentRepo", "CREANDO CLIENT_EQUIPMENT")
+            Log.d("ClientEquipmentRepo", "====================================")
+            Log.d("ClientEquipmentRepo", "ClientId: $clientId")
+            Log.d("ClientEquipmentRepo", "EquipmentId: $equipmentId")
+            Log.d("ClientEquipmentRepo", "OwnershipType: $ownershipType")
+            Log.d("ClientEquipmentRepo", "Status: $status")
+
+            val createDto = pe.edu.upc.polarnet.features.client.equipments.data.remote.models.CreateClientEquipmentDto(
+                clientId = clientId,
+                equipmentId = equipmentId,
+                ownershipType = ownershipType,
+                startDate = startDate,
+                endDate = endDate,
+                status = status,
+                notes = notes
+            )
+
+            val response = service.createClientEquipment(createDto)
+
+            if (response.isSuccessful) {
+                val dto = response.body()?.firstOrNull()
+                if (dto != null) {
+                    Log.d("ClientEquipmentRepo", "ClientEquipment creado exitosamente: ID ${dto.id}")
+                    val clientEquipment = dto.toDomain()
+
+                    // Guardar localmente
+                    dao.insert(
+                        ClientEquipmentEntity(
+                            id = clientEquipment.id,
+                            clientId = clientEquipment.clientId,
+                            equipmentId = clientEquipment.equipmentId,
+                            ownershipType = clientEquipment.ownershipType,
+                            startDate = clientEquipment.startDate,
+                            endDate = clientEquipment.endDate,
+                            status = clientEquipment.status,
+                            notes = clientEquipment.notes
+                        )
+                    )
+
+                    return@withContext Result.success(clientEquipment)
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("ClientEquipmentRepo", "Error ${response.code()}: $errorBody")
+                return@withContext Result.failure(Exception("Error al crear ClientEquipment: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Log.e("ClientEquipmentRepo", "Excepción al crear ClientEquipment: ${e.message}", e)
+            return@withContext Result.failure(e)
+        }
+
+        return@withContext Result.failure(Exception("Error al crear ClientEquipment"))
+    }
 }
 
 /**

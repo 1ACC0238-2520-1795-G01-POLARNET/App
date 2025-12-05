@@ -7,16 +7,25 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import pe.edu.upc.polarnet.features.client.equipments.domain.repositories.ClientEquipmentRepository
 import pe.edu.upc.polarnet.features.client.home.domain.repositories.EquipmentRepository
+import pe.edu.upc.polarnet.features.client.notifications.domain.repositories.NotificationRepository
 import pe.edu.upc.polarnet.features.client.rental.domain.repositories.RentalRepository
 import pe.edu.upc.polarnet.shared.models.Equipment
+import pe.edu.upc.polarnet.shared.models.Notification
 import pe.edu.upc.polarnet.shared.models.ServiceRequest
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class EquipmentDetailViewModel @Inject constructor(
     private val equipmentRepository: EquipmentRepository,
-    private val rentalRepository: RentalRepository
+    private val rentalRepository: RentalRepository,
+    private val notificationRepository: NotificationRepository,
+    private val clientEquipmentRepository: ClientEquipmentRepository
 ) : ViewModel() {
 
     private val _equipment = MutableStateFlow<Equipment?>(null)
@@ -87,6 +96,25 @@ class EquipmentDetailViewModel @Inject constructor(
 
                 result.onSuccess { createdRequest ->
                     Log.d("EquipmentDetailVM", "Solicitud creada exitosamente: ID ${createdRequest.id}")
+
+                    // Crear el registro en client_equipment
+                    createClientEquipmentRecord(
+                        clientId = clientId,
+                        equipmentId = equipmentId,
+                        startDate = startDate,
+                        endDate = endDate
+                    )
+
+                    // Crear notificaciones para el cliente y el proveedor
+                    val providerId = _equipment.value?.providerId ?: 0L
+                    createRentalNotifications(
+                        clientId = clientId,
+                        providerId = providerId,
+                        equipmentName = _equipment.value?.name ?: "Equipo",
+                        totalPrice = totalPrice,
+                        rentalMonths = rentalMonths
+                    )
+
                     _rentalSuccess.value = true
                 }.onFailure { exception ->
                     Log.e("EquipmentDetailVM", "Error al crear solicitud: ${exception.message}")
@@ -97,6 +125,89 @@ class EquipmentDetailViewModel @Inject constructor(
                 _errorMessage.value = e.message ?: "Error al crear solicitud"
             } finally {
                 _isLoading.value = false
+            }
+        }
+    }
+
+    private fun createRentalNotifications(
+        clientId: Long,
+        providerId: Long,
+        equipmentName: String,
+        totalPrice: Double,
+        rentalMonths: Int
+    ) {
+        viewModelScope.launch {
+            try {
+                val timestampFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                val timestamp = timestampFormatter.format(Date())
+
+                // Notificación para el CLIENTE
+                val clientNotification = Notification(
+                    id = UUID.randomUUID().toString(),
+                    userId = clientId.toString(),
+                    role = "client",
+                    type = "rental_created",
+                    title = "¡Solicitud enviada!",
+                    message = "Has solicitado alquilar \"$equipmentName\" por $rentalMonths mes(es). Total: S/ ${String.format(Locale.getDefault(), "%.2f", totalPrice)}. Tu solicitud está pendiente de aprobación.",
+                    timestamp = timestamp,
+                    isRead = false
+                )
+
+                notificationRepository.createNotification(clientNotification).onSuccess {
+                    Log.d("EquipmentDetailVM", "Notificación para cliente creada exitosamente")
+                }.onFailure { e ->
+                    Log.e("EquipmentDetailVM", "Error al crear notificación del cliente: ${e.message}")
+                }
+
+                // Notificación para el PROVEEDOR
+                val providerNotification = Notification(
+                    id = UUID.randomUUID().toString(),
+                    userId = providerId.toString(),
+                    role = "provider",
+                    type = "rental_request",
+                    title = "¡Nueva solicitud de alquiler!",
+                    message = "Un cliente ha solicitado alquilar \"$equipmentName\" por $rentalMonths mes(es). Total: S/ ${String.format(Locale.getDefault(), "%.2f", totalPrice)}",
+                    timestamp = timestamp,
+                    isRead = false
+                )
+
+                notificationRepository.createNotification(providerNotification).onSuccess {
+                    Log.d("EquipmentDetailVM", "Notificación para proveedor creada exitosamente")
+                }.onFailure { e ->
+                    Log.e("EquipmentDetailVM", "Error al crear notificación del proveedor: ${e.message}")
+                }
+
+            } catch (e: Exception) {
+                Log.e("EquipmentDetailVM", "Excepción al crear notificaciones: ${e.message}", e)
+            }
+        }
+    }
+
+    private fun createClientEquipmentRecord(
+        clientId: Long,
+        equipmentId: Long,
+        startDate: String,
+        endDate: String?
+    ) {
+        viewModelScope.launch {
+            try {
+                Log.d("EquipmentDetailVM", "Creando registro en client_equipment...")
+
+                clientEquipmentRepository.createClientEquipment(
+                    clientId = clientId,
+                    equipmentId = equipmentId,
+                    ownershipType = "rented",
+                    startDate = startDate,
+                    endDate = endDate,
+                    status = "active",
+                    notes = "Equipo alquilado desde la aplicación móvil"
+                ).onSuccess {
+                    Log.d("EquipmentDetailVM", "ClientEquipment creado exitosamente: ID ${it.id}")
+                }.onFailure { e ->
+                    Log.e("EquipmentDetailVM", "Error al crear ClientEquipment: ${e.message}")
+                }
+            } catch (e: Exception) {
+                Log.e("EquipmentDetailVM", "Excepción al crear ClientEquipment: ${e.message}", e)
             }
         }
     }

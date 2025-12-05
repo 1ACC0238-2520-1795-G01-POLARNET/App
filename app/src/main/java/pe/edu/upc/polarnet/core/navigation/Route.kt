@@ -17,4 +17,7 @@ sealed class Route(val route: String) {
         const val argument = "serviceRequestId"
         val routeWithArgument = "$route/{$argument}"
     }
+
+    // 👇 Ruta para notificaciones del cliente
+    object Notifications : Route("notifications")
 }

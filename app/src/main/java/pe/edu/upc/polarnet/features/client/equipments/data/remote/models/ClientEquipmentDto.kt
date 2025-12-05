@@ -28,3 +28,26 @@ data class ClientEquipmentDto(
     // Relación con Equipment (viene anidado si haces select(*, equipment(*)))
     val equipment: EquipmentDto?
 )
+
+// DTO para crear un nuevo ClientEquipment
+data class CreateClientEquipmentDto(
+    @SerializedName("client_id")
+    val clientId: Long,
+
+    @SerializedName("equipment_id")
+    val equipmentId: Long,
+
+    @SerializedName("ownership_type")
+    val ownershipType: String,
+
+    @SerializedName("start_date")
+    val startDate: String,
+
+    @SerializedName("end_date")
+    val endDate: String?,
+
+    val status: String,
+
+    val notes: String?
+)
+

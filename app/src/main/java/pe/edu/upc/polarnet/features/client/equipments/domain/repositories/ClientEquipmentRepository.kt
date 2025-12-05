@@ -11,4 +11,14 @@ interface ClientEquipmentRepository {
     suspend fun insert(clientEquipment: ClientEquipment)
 
     suspend fun delete(clientEquipment: ClientEquipment)
+
+    suspend fun createClientEquipment(
+        clientId: Long,
+        equipmentId: Long,
+        ownershipType: String,
+        startDate: String,
+        endDate: String?,
+        status: String,
+        notes: String?
+    ): Result<ClientEquipment>
 }

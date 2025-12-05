@@ -19,8 +19,11 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun login(email: String, password: String): User? =
         withContext(Dispatchers.IO) {
             try {
-                println(" Intentando login con email: $email")
-                println(" URL Supabase: ${supabase.supabaseUrl}")
+                android.util.Log.d("AuthRepo", "====================================")
+                android.util.Log.d("AuthRepo", "INICIANDO LOGIN")
+                android.util.Log.d("AuthRepo", "====================================")
+                android.util.Log.d("AuthRepo", "Email: $email")
+                android.util.Log.d("AuthRepo", "URL Supabase: ${supabase.supabaseUrl}")
 
                 val users = supabase
                     .from("users")
@@ -29,15 +32,27 @@ class AuthRepositoryImpl @Inject constructor(
                     }
                     .decodeList<UserDetailDto>()
 
-                if (users.isEmpty()) return@withContext null
+                android.util.Log.d("AuthRepo", "Usuarios encontrados: ${users.size}")
+
+                if (users.isEmpty()) {
+                    android.util.Log.d("AuthRepo", "No se encontró usuario con ese email")
+                    return@withContext null
+                }
 
                 val userDto = users.first()
-                if (userDto.password != password) return@withContext null
+                android.util.Log.d("AuthRepo", "Usuario encontrado: ${userDto.fullName}")
+                android.util.Log.d("AuthRepo", "Password en BD: ${userDto.password}")
+                android.util.Log.d("AuthRepo", "Password ingresado: $password")
+                android.util.Log.d("AuthRepo", "¿Coinciden?: ${userDto.password == password}")
 
-                println(" Login exitoso para: ${userDto.fullName}")
-                println(" ID del usuario: ${userDto.id}")
-                println(" Email: ${userDto.email}")
-                println(" Role: ${userDto.role}")
+                if (userDto.password != password) {
+                    android.util.Log.d("AuthRepo", "Contraseña incorrecta")
+                    return@withContext null
+                }
+
+                android.util.Log.d("AuthRepo", "Login exitoso para: ${userDto.fullName}")
+                android.util.Log.d("AuthRepo", "ID del usuario: ${userDto.id}")
+                android.util.Log.d("AuthRepo", "Role: ${userDto.role}")
 
                 val user = User(
                     id = userDto.id,
@@ -51,10 +66,14 @@ class AuthRepositoryImpl @Inject constructor(
                     createdAt = userDto.createdAt
                 )
 
-                println(" User object creado con ID: ${user.id}")
+                android.util.Log.d("AuthRepo", "User object creado con ID: ${user.id}")
                 user
             } catch (e: Exception) {
-                println(" Error en login: ${e.message}")
+                android.util.Log.e("AuthRepo", "====================================")
+                android.util.Log.e("AuthRepo", "ERROR EN LOGIN")
+                android.util.Log.e("AuthRepo", "====================================")
+                android.util.Log.e("AuthRepo", "Mensaje: ${e.message}")
+                android.util.Log.e("AuthRepo", "Tipo: ${e.javaClass.simpleName}")
                 e.printStackTrace()
                 null
             }

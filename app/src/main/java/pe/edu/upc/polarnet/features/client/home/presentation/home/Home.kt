@@ -27,18 +27,30 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import pe.edu.upc.polarnet.R
 import pe.edu.upc.polarnet.core.ui.theme.polarNetColors
 import pe.edu.upc.polarnet.features.auth.presentation.login.LoginViewModel
+import pe.edu.upc.polarnet.features.client.notifications.presentation.NotificationViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Home(
     viewModel: HomeViewModel = hiltViewModel(),
+    notificationViewModel: NotificationViewModel = hiltViewModel(),
     onTapEquipmentCard: (Long) -> Unit,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    onNavigateToNotifications: () -> Unit = {}
 ) {
     val loggedUser = loginViewModel.loggedUser.collectAsState().value
     val categories = listOf("Todo", "Congeladores", "Refrigeradores", "Vitrinas", "CSR")
     var selectedCategory by remember { mutableStateOf("Todo") }
     val equipments by viewModel.equipments.collectAsState()
+    val unreadCount by notificationViewModel.unreadCount.collectAsState()
     val colors = MaterialTheme.polarNetColors
+
+    // Cargar conteo de notificaciones no leídas
+    LaunchedEffect(loggedUser?.id) {
+        loggedUser?.id?.let { userId ->
+            notificationViewModel.loadUnreadCount(userId)
+        }
+    }
 
     // Log para debug
     LaunchedEffect(equipments) {
@@ -115,13 +127,29 @@ fun Home(
                         }
 
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            IconButton(onClick = { /* Notificaciones */ }) {
-                                Icon(
-                                    Icons.Outlined.Notifications,
-                                    contentDescription = "Notificaciones",
-                                    tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size(28.dp)
-                                )
+                            IconButton(onClick = onNavigateToNotifications) {
+                                BadgedBox(
+                                    badge = {
+                                        if (unreadCount > 0) {
+                                            Badge(
+                                                containerColor = MaterialTheme.colorScheme.error,
+                                                contentColor = MaterialTheme.colorScheme.onError
+                                            ) {
+                                                Text(
+                                                    text = if (unreadCount > 9) "9+" else unreadCount.toString(),
+                                                    style = MaterialTheme.typography.labelSmall
+                                                )
+                                            }
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Outlined.Notifications,
+                                        contentDescription = "Notificaciones",
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(28.dp)
+                                    )
+                                }
                             }
                             IconButton(onClick = { /* Carrito */ }) {
                                 Icon(

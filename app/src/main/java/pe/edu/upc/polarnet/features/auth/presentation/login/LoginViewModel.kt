@@ -53,20 +53,24 @@ class LoginViewModel @Inject constructor(
             _errorMessage.value = null
 
             try {
-                println("Iniciando login con: ${email.value}")
+                android.util.Log.d("LoginViewModel", "====================================")
+                android.util.Log.d("LoginViewModel", "INICIANDO LOGIN")
+                android.util.Log.d("LoginViewModel", "====================================")
+                android.util.Log.d("LoginViewModel", "Email: ${email.value}")
+
                 val result = repository.login(email.value, password.value)
 
+                android.util.Log.d("LoginViewModel", "Resultado: $result")
+
                 if (result != null) {
-                    println("Usuario autenticado: ${result.fullName} (id=${result.id})")
+                    android.util.Log.d("LoginViewModel", "Login exitoso: ${result.fullName} (id=${result.id})")
                     _loggedUser.value = result
-                    println("_loggedUser.value guardado: ${_loggedUser.value?.id}")
-                    android.util.Log.d("LoginViewModel", "Usuario guardado con ID: ${_loggedUser.value?.id}")
                 } else {
-                    println("Login falló - credenciales incorrectas")
+                    android.util.Log.d("LoginViewModel", "Login falló - credenciales incorrectas o error de conexión")
                     _errorMessage.value = "Correo o contraseña incorrectos"
                 }
             } catch (e: Exception) {
-                println("Excepción en login: ${e.message}")
+                android.util.Log.e("LoginViewModel", "Excepción en login: ${e.message}")
                 e.printStackTrace()
                 _errorMessage.value = "Error de conexión: ${e.message}"
             } finally {

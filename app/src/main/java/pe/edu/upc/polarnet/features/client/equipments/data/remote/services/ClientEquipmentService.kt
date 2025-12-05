@@ -1,8 +1,12 @@
 package pe.edu.upc.polarnet.features.client.equipments.data.remote.services
 
 import pe.edu.upc.polarnet.features.client.equipments.data.remote.models.ClientEquipmentDto
+import pe.edu.upc.polarnet.features.client.equipments.data.remote.models.CreateClientEquipmentDto
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface ClientEquipmentService {
@@ -25,5 +29,12 @@ interface ClientEquipmentService {
     suspend fun getClientEquipmentById(
         @Query("id") id: String,
         @Query("select") select: String = "*,equipment(*)"
+    ): Response<List<ClientEquipmentDto>>
+
+    // Crear un nuevo registro de equipo del cliente
+    @POST("client_equipment")
+    suspend fun createClientEquipment(
+        @Body clientEquipment: CreateClientEquipmentDto,
+        @Header("Prefer") prefer: String = "return=representation"
     ): Response<List<ClientEquipmentDto>>
 }
